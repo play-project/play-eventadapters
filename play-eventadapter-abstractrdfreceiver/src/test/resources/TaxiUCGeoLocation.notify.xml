@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><wsnt:Notify xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"><wsnt:NotificationMessage><wsnt:Topic xmlns:dsb="http://www.petalslink.org/dsb/topicsns/" Dialect="http://www.w3.org/TR/1999/REC-xpath-19991116">dsb:TaxiUCCall</wsnt:Topic><wsnt:Message><mt:nativeMessage xmlns:mt="http://www.event-processing.org/wsn/msgtype/" xmlns:b="http://docs.oasis-open.org/wsn/b-2" xmlns:add="http://www.w3.org/2005/08/addressing" mt:syntax="application/x-trig">
+@prefix :        &lt;http://events.event-processing.org/types/&gt; .
+@prefix e:       &lt;http://events.event-processing.org/ids/&gt; .
+@prefix dsb:     &lt;http://www.petalslink.org/dsb/topicsns/&gt; .
+@prefix xsd:     &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix uctelco: &lt;http://events.event-processing.org/uc/telco/&gt; .
+@prefix geo:     &lt;http://www.w3.org/2003/01/geo/wgs84_pos#&gt; .
+e:loc-81 {
+e:loc-81#event uctelco:sequenceNumber "81"^^xsd:integer ;
+uctelco:uniqueId "taxiUC:loc-81" ;
+uctelco:userType "Customer" ;
+uctelco:phoneNumber "33600000011" ;
+# but also some other data according to event format
+a :UcTelcoGeoLocation ;
+:source &lt;http://sources.event-processing.org/ids/GeoLocationAndroid#source&gt; ;
+:stream &lt;http://streams.event-processing.org/ids/TaxiUCGeoLocation#stream&gt; ; 
+:location &lt;blank://1&gt; .
+
+&lt;blank://1&gt; geo:lat "43.6160782172944"^^xsd:double ; geo:long "7.053994821300775"^^xsd:double; .
+}
+</mt:nativeMessage></wsnt:Message></wsnt:NotificationMessage></wsnt:Notify>

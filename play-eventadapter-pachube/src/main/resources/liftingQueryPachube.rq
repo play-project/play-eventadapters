@@ -1,0 +1,16 @@
+PREFIX : <http://events.event-processing.org/types/>
+PREFIX e: <http://events.event-processing.org/ids/>
+PREFIX temp: <http://www.linkedopenservices.org/ns/temp-json#>
+PREFIX dc: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+CONSTRUCT {
+    ?subject :hasFloatDummy ?test
+}
+WHERE {
+	?subject rdf:type :PachubeEvent .
+    ?q temp:current_value ?current_value .
+    BIND (xsd:float(?current_value) as ?test)
+}

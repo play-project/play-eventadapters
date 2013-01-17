@@ -1,0 +1,316 @@
+package eu.play_project.play_eventadapter;
+
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTAX;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_ELEMENT;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_GRAPH_ATTRIBUTE;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_NS;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_SYNTAX_ATTRIBUTE;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.namespace.QName;
+
+import org.event_processing.events.types.Event;
+import org.ontoware.rdf2go.exception.ModelRuntimeException;
+import org.ontoware.rdf2go.model.Model;
+import org.ontoware.rdf2go.model.ModelSet;
+import org.ontoware.rdf2go.model.Syntax;
+import org.ontoware.rdfreactor.runtime.ReactorResult;
+import org.petalslink.dsb.notification.client.http.simple.HTTPProducerClient;
+import org.petalslink.dsb.notification.client.http.simple.HTTPProducerRPClient;
+import org.petalslink.dsb.notification.client.http.simple.HTTPSubscriptionManagerClient;
+import org.petalslink.dsb.notification.commons.NotificationException;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+
+import com.ebmwebsourcing.easycommons.xml.XMLHelper;
+import com.ebmwebsourcing.wsstar.basefaults.datatypes.impl.impl.WsrfbfModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.basenotification.datatypes.impl.impl.WsnbModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.resource.datatypes.impl.impl.WsrfrModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.resourcelifetime.datatypes.impl.impl.WsrfrlModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.resourceproperties.datatypes.impl.impl.WsrfrpModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.topics.datatypes.impl.impl.WstopModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.wsnb.services.impl.util.Wsnb4ServUtils;
+
+import eu.play_project.play_commons.constants.Constants;
+import eu.play_project.play_commons.eventtypes.EventHelpers;
+
+/**
+ * A an abstract event consumer which can subscribe to PLAY RDF events and deal
+ * with the necessary un-marshalling and parsing.
+ * 
+ * @author stuehmer
+ * 
+ * @version $Revision: 34609 $
+ * 
+ */
+public abstract class AbstractReceiver {
+
+	static {
+		Wsnb4ServUtils.initModelFactories(new WsrfbfModelFactoryImpl(),
+				new WsrfrModelFactoryImpl(), new WsrfrlModelFactoryImpl(),
+				new WsrfrpModelFactoryImpl(), new WstopModelFactoryImpl(),
+				new WsnbModelFactoryImpl());
+	}
+
+	private String dsbSubscribe = Constants.getProperties().getProperty(
+			"dsb.subscribe.endpoint");
+	private String dsbUnSubscribe = Constants.getProperties().getProperty(
+			"dsb.unsubscribe.endpoint");
+	private Logger logger = Logger.getAnonymousLogger();
+	private Map<String, QName> subscriptions = Collections.synchronizedMap(new HashMap<String, QName>());
+
+	/**
+	 * Subscribe to a topic at the endpoint in
+	 * {@link AbstractReceiver#dsbSubscribe}.
+	 * 
+	 * @param topic
+	 * @throws NotificationException
+	 */
+	public void subscribe(QName topic) throws NotificationException {
+		HTTPProducerClient client = new HTTPProducerClient(dsbSubscribe);
+
+		String notificationsEndPoint = "http://demo.play-project.eu/webservice/";
+		// TODO stuehmer: this string should probably be configurable or be a method parameter
+		try {
+			String subscriptionId = client.subscribe(topic,
+					notificationsEndPoint);
+			subscriptions.put(subscriptionId, topic);
+		} catch (NotificationException e) {
+			logger.log(Level.WARNING, "Problem while subcribing to topic '"
+					+ topic + "' at DSB endpoint '" + dsbSubscribe + "'", e);
+			throw e;
+		}
+
+	}
+
+	/**
+	 * Unsubscribe from a specific subscription.
+	 * 
+	 * @param subscriptionId
+	 * @throws NotificationException
+	 */
+	public void unsubscribe(String subscriptionId)
+			throws NotificationException {
+		HTTPSubscriptionManagerClient subscriptionManagerClient = new HTTPSubscriptionManagerClient(
+				dsbUnSubscribe);
+		try {
+			subscriptionManagerClient.unsubscribe(subscriptionId);
+			subscriptions.remove(subscriptionId);
+
+		} catch (NotificationException e) {
+			logger.log(Level.WARNING,
+					"Problem while unsubcribing from subscription '"
+							+ subscriptionId + "' at DSB endpoint '"
+							+ dsbSubscribe + "'", e);
+			throw e;
+		}
+
+	}
+
+	/**
+	 * Unsubscribe from all previous subscriptions. Don't fail if something goes wrong.
+	 */
+	public void unsubscribeAll() {
+		int failCount = 0;
+		for (Iterator<String> it = subscriptions.keySet().iterator(); it.hasNext();) {
+			try {
+				unsubscribe(it.next());
+				it.remove();
+			} catch (NotificationException e) {
+				failCount++;
+			}
+		}
+		if (failCount > 0) {
+			logger.log(Level.WARNING,
+					"Problem while unsubcribing from all subscriptions: "
+							+ failCount
+							+ " unsubscriptions failed at DSB endpoint '"
+							+ dsbSubscribe + "'");
+		} else {
+			logger.log(Level.INFO,
+					"Successfully unsubcribed from all subscriptions at DSB endpoint '"
+							+ dsbSubscribe + "'");
+		}
+	}
+
+	/**
+	 * Retreive the current list of topics from the endpoint in
+	 * {@link AbstractReceiver#dsbSubscribe}.
+	 * 
+	 * @return the current list of topics
+	 */
+	public List<QName> getTopics() {
+		HTTPProducerRPClient rpclient = new HTTPProducerRPClient(dsbSubscribe);
+		List<QName> topics;
+		try {
+			topics = rpclient.getTopics();
+			logger.info(topics.toString());
+		} catch (NotificationException e) {
+			logger.log(Level.WARNING,
+					"Problem while retreiving the available topics from DSB endpoint '"
+							+ dsbSubscribe + "'", e);
+		} finally {
+			topics = new ArrayList<QName>();
+		}
+		return topics;
+	}
+
+	/**
+	 * Retrieve RDF from the contents of an XML message.
+	 * 
+	 * @param stringNotify
+	 * @return
+	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	 */
+	public Model parseRdf(String stringNotify) throws NoRdfEventException {
+		try {
+			return parseRdf(XMLHelper.createDocumentFromString(stringNotify));
+		} catch (Exception e) {
+			throw new NoRdfEventException("Exception while reading RDF event from XML message.", e);
+		}
+	}
+	
+	/**
+	 * Retrieve RDF from the contents of an XML message. 
+	 * 
+	 * @param xmlNotify
+	 * @return
+	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	 */
+	public Model parseRdf(Node xmlNotify) throws NoRdfEventException {
+
+		// The ModelSet to hold the RDF data:
+		ModelSet rdf = EventHelpers.createEmptyModelSet();
+		// The RDF syntax (serialization format):
+		String syntax;
+
+		Node playMsgElement = XMLHelper.findChild(xmlNotify, WSN_MSG_ELEMENT.getNamespaceURI(), WSN_MSG_ELEMENT.getLocalPart(), true);
+		String playMsgContent = (playMsgElement != null && playMsgElement.getTextContent() != null) ? playMsgElement.getTextContent() : "";
+		if (playMsgContent.isEmpty()) {
+			throw new NoRdfEventException("An event was receieved with no or empty content element: " + WSN_MSG_ELEMENT);
+		}
+		Reader r = new StringReader(playMsgContent);
+
+		
+		/*
+		 * Find the RDF syntax
+		 */
+		NamedNodeMap nnm = playMsgElement.getAttributes();
+		Node syntaxAttribute = playMsgElement.getAttributes().getNamedItemNS(WSN_MSG_NS, WSN_MSG_SYNTAX_ATTRIBUTE);
+		if (syntaxAttribute != null && !syntaxAttribute.getTextContent().isEmpty()) {
+			syntax = syntaxAttribute.getTextContent();
+		}
+		else {
+			syntax = WSN_MSG_DEFAULT_SYNTAX;
+		}
+		logger.fine("Parsing an incoming event with syntax '" + syntax + "'");
+		
+		try {
+			rdf.readFrom(r, Syntax.forMimeType(syntax));
+		} catch (ModelRuntimeException e) {
+			throw new NoRdfEventException("An exception occured while parsing RDF of an incoming event.", e);
+		} catch (IOException e) {
+			throw new NoRdfEventException("An exception occured while parsing RDF of an incoming event.", e);
+		}
+		
+		/*
+		 * A hack to select the event graph in the rare case when more than one
+		 * graph were returned:
+		 */
+		Model model = rdf.getDefaultModel();
+		long max = model.size();
+		Iterator<Model> it = rdf.getModels();
+		// For now, select the largest model
+		while (it.hasNext()) {
+			Model temp = it.next();
+			long tempSize = temp.size();
+			if (tempSize > max) {
+				max = tempSize;
+				model = temp;																																		
+			}
+		}
+		
+		if (max == 0) {
+			throw new NoRdfEventException("The RDF event had no attributes, or other features (zero quads).");
+		}
+
+		// If there is no RDF context try to get it from the XML message
+		if (model.getContextURI() == null) {
+			Node graphAttribute = playMsgElement.getAttributes().getNamedItem(WSN_MSG_GRAPH_ATTRIBUTE);
+			if (graphAttribute != null && !graphAttribute.getTextContent().isEmpty()) {
+				Model temp = EventHelpers.createEmptyModel(graphAttribute.getTextContent());
+				temp.addModel(model);
+				model = temp;
+			}
+
+		}		
+		return EventHelpers.addNamespaces(model);
+	}
+	
+	/**
+	 * Retrieve an Event from the contents of an XML message.
+	 * 
+	 * @param xmlNotify
+	 * @param type the event class which is expected as a return type
+	 * @return an event of the given type, if one was found. {@code null} otherwise
+	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	 */
+	public <EventType extends Event> EventType getEvent(String stringNotify, Class<EventType> type) throws NoRdfEventException {
+		try {
+			return this.getEvent(XMLHelper.createDocumentFromString(stringNotify), type);
+		} catch (Exception e) {
+			throw new NoRdfEventException("Exception while reading RDF event from XML message.", e);
+		} 
+	}
+
+	/**
+	 * Retrieve an Event from the contents of an XML message.
+	 * 
+	 * @param xmlNotify
+	 * @param type the event class which is expected as a return type
+	 * @return an event of the given type, if one was found. {@code null} otherwise
+	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	 */
+	public <EventType extends Event> EventType getEvent(Node xmlNotify, Class<EventType> type) throws NoRdfEventException {
+		Model model = this.parseRdf(xmlNotify);
+		EventType event = null;
+		
+		Method m;
+		try {
+			m = type.getMethod("getAllInstances_as", Model.class);
+			@SuppressWarnings("unchecked")
+			ReactorResult<EventType> result = (ReactorResult<EventType>) m.invoke(null, model);
+			Iterator<EventType> it = result.asClosableIterator();
+			if (it.hasNext()) {
+				event = it.next();
+			}
+		} catch (Exception e) {
+			throw new NoRdfEventException("Exception while instanciating event from RDF.", e);
+		}
+		
+		return event;
+	}
+
+	/**
+	 * Overwrite the default subscribe endpoint.
+	 * 
+	 * @param dsbSubscribe
+	 */
+	public void setDsbSubscribe(String dsbSubscribe) {
+		this.dsbSubscribe = dsbSubscribe;
+	}
+	
+	
+}

@@ -1,0 +1,36 @@
+# Extracted from https://github.com/ulrich/macaron-factory/blob/master/.gitignore
+# Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+
+.settings/
+.target/
+bin/
+db/
+eclipse/
+etc/
+lib/
+logs/
+modules/
+precompiled/
+project/project
+project/target
+target/
+tmp/
+test-result/
+*.releaseBackup
+*.iml
+*.eml
+conf/application.conf
+.DS_Store
+.cache
+.checkstyle
+.checkstyle-rules.xml
+.classpath
+.project
+hs_err_pid*.log
+release.properties
+server.pid
+system.out
+velocity.log*

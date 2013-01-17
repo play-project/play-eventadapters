@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Facebook Events Publishing</title>
+  </head>
+
+  <body>
+    <h1>Facebook Real-time Subribe:</h1>
+	<div id="fb-root"></div>
+
+<!-- Facebook Login button for user to allow application
+<script src="http://connect.facebook.net/en_US/all.js"></script>
+
+<script>
+
+  FB.init({appId: '238512546170666', status: true, cookie: true,xfbml: true});
+
+  FB.Event.subscribe('auth.sessionChange', function(response) {
+
+    if (response.session) {
+
+      // A user has logged in, and a new cookie has been saved
+
+    } else {
+
+      // The user has logged out, and the cookie has been cleared
+
+    }
+
+  });
+
+</script>
+<div>
+<fb:login-button perms="email, read_stream, user_status, offline_access, publish_stream, user_location"></fb:login-button>
+</div>
+
+ -->
+    <table>
+      <tr>
+        <td colspan="2" style="font-weight:bold;">Click following link to Subscribe:</td>        
+      </tr>
+      <tr>
+        <td><a href="subcribe">Subcribe Facebook Realtime </a></td>  
+<!--  <td><a target="_blank" href="https://graph.facebook.com/oauth/authorize?client_id=238512546170666&display=page&redirect_uri=http://demo.play-project.eu:8080/play-eventadapter-facebook/facebookAuth&scope=user_status,publish_stream,offline_access,email, user_location">test subcribe with URI</a></td>--> 
+      </tr>
+      <tr>
+        <td colspan="2" style="font-weight:bold;">Click following link to Unsubscribe in your Facebook Account:</td>        
+      </tr>
+      <tr>
+      <td><a target="_blank" href="https://www.facebook.com/settings/?tab=applications">Facebook App Settings</a></td>
+      </tr>
+    </table>
+  </body>
+</html>
