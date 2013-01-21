@@ -11,7 +11,7 @@ When sending an event to PLAY the sender must...
 Event in RDF format, TriG syntax
 --------------------------------
 ### Example
-```
+```none
 @PREFIX :    <http://events.event-processing.org/types/> .
 @PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> .
 
@@ -104,7 +104,7 @@ The HTTP endpoint should be used from Java property `dsb.notify.endpoint` from [
 You can use one of the following:
 
 ### PLAY Abstract RDF Sender
-```
+```none
 		<dependency>
 			<groupId>org.ow2.play</groupId>
 			<artifactId>play-eventadapter-abstractrdfsender</artifactId>
@@ -114,7 +114,7 @@ You can use one of the following:
 Example usage: [code](play-eventadapter-abstractrdfsender/src/test/java/eu/play_project/play_eventadapter/tests/AbstractSenderTest.java)
 
 ### PLAY HTTP Client [Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-commons)
-```
+```none
 		<dependency>
 			<groupId>org.petalslink.dsb</groupId>
 			<artifactId>dsb-notification-commons</artifactId>
@@ -131,7 +131,7 @@ Example usage: [code](/play-eventadapter-abstractrdfsender/src/main/java/eu/play
 ### PLAY lightweight HTTP Client [Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-lightweight)
 
 For the use on resource-constrained devices this artefact has less dependencies.
-```
+```none
 		<dependency>
 			<groupId>org.ow2.petals.dsb</groupId>
 			<artifactId>dsb-notification-lightweight</artifactId>
