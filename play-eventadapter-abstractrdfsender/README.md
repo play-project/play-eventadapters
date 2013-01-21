@@ -101,7 +101,8 @@ The SOAP WS-Notification message must be sent to the PLAY Distributed Service Bu
 
 The HTTP endpoint should be used from Java property `dsb.notify.endpoint` from [play-commons-constants.properties](https://github.com/play-project/play-commons/blob/master/play-commons-constants/src/main/resources/play-commons-constants.properties)
 
-You can use 
+You can use one of the following:
+
 ### PLAY Abstract RDF Sender
 ```
 		<dependency>
