@@ -10,3 +10,5 @@ To receive events from PLAY this is needed:
 6. parse the RDF
 
 ... details to be added.
+
+... a generic approach for mobile phones is still needed (they don't expose an HTTP endpoint)

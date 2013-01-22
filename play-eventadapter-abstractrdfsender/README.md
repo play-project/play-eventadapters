@@ -113,7 +113,7 @@ You can use one of the following:
 ```
 Example usage: [code](play-eventadapter-abstractrdfsender/src/test/java/eu/play_project/play_eventadapter/tests/AbstractSenderTest.java)
 
-### PLAY HTTP Client [Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-commons)
+### PLAY HTTP Client ([Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-commons))
 ```none
 		<dependency>
 			<groupId>org.petalslink.dsb</groupId>
@@ -128,7 +128,7 @@ Example usage: [code](play-eventadapter-abstractrdfsender/src/test/java/eu/play_
 ```
 Example usage: [code](/play-eventadapter-abstractrdfsender/src/main/java/eu/play_project/play_eventadapter/AbstractSender.java)
 
-### PLAY lightweight HTTP Client [Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-lightweight)
+### PLAY lightweight HTTP Client ([Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-lightweight))
 
 For the use on resource-constrained devices this artefact has less dependencies.
 ```none
@@ -139,3 +139,5 @@ For the use on resource-constrained devices this artefact has less dependencies.
 ```
 
 ### your own HTTP client
+
+...

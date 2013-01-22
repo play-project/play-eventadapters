@@ -15,6 +15,7 @@
 
 	<name>play-eventadapters-parent</name>
 	<description></description>
+	<inceptionYear>2011</inceptionYear>
 	
 	<modules>
 		<module>play-eventadapter-abstractrdfreceiver</module>
@@ -24,4 +25,24 @@
 		<module>play-eventadapter-pachube</module>
 		<module>play-eventadapter-ldstreams</module>
 	</modules>
+	
+	<scm>
+		<url>https://github.com/play-project/play-eventadapters</url>
+		<connection>scm:git:git://github.com/play-project/play-eventadapters.git</connection>
+		<developerConnection>scm:git:https://github.com/play-project/play-eventadapters.git</developerConnection>
+	</scm>
+	
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/play-project/play/issues?labels=&page=1&state=open</url>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License version 3.0</name>
+			<url>http://www.gnu.org/licenses/agpl-3.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>	
+
 </project>
