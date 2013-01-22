@@ -20,3 +20,7 @@ This repository contains a collection of various event adapters developed to pro
 events in RDF format for project PLAY.
 
 Most adapters are Tomcat servlets.
+
+Issues
+------
+For issues and bug reporting, please go to https://github.com/play-project/play/issues?labels=&page=1&state=open
