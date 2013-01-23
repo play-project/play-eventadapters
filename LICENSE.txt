@@ -1,5 +1,5 @@
 PLAY Event Adapters
-Copyright (C) 2011 FZI Forschungszentrum Informatik, Karlsruhe, Germany
+Copyright (C) 2010 FZI Forschungszentrum Informatik, Karlsruhe, Germany
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

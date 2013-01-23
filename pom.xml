@@ -15,7 +15,7 @@
 
 	<name>play-eventadapters-parent</name>
 	<description></description>
-	<inceptionYear>2011</inceptionYear>
+	<inceptionYear>2010</inceptionYear>
 	
 	<modules>
 		<module>play-eventadapter-abstractrdfreceiver</module>
