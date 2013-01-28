@@ -116,14 +116,14 @@ Example usage: [code](play-eventadapter-abstractrdfsender/src/test/java/eu/play_
 ### PLAY HTTP Client ([Github](https://github.com/PetalsLinkLabs/petals-dsb/tree/master/modules/dsb-notification-commons))
 ```none
 		<dependency>
-			<groupId>org.petalslink.dsb</groupId>
+			<groupId>org.ow2.petals.dsb</groupId>
 			<artifactId>dsb-notification-commons</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.petalslink.dsb</groupId>
+			<groupId>org.ow2.petals.dsb</groupId>
 			<artifactId>dsb-notification-httpclient</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency> 
 ```
 Example usage: [code](/play-eventadapter-abstractrdfsender/src/main/java/eu/play_project/play_eventadapter/AbstractSender.java)
@@ -135,6 +135,7 @@ For the use on resource-constrained devices this artefact has less dependencies.
 		<dependency>
 			<groupId>org.ow2.petals.dsb</groupId>
 			<artifactId>dsb-notification-lightweight</artifactId>
+			<version>1.0.0</version>
 		</dependency> 
 ```
 
