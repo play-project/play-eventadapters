@@ -35,12 +35,6 @@
     		<name>sonatype-nexus-snapshots</name>
     		<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</repository>
-	
-		<repository>
-   			<id>jdbm-snapshots</id>
-    		<name>jdbm-snapshots</name>
-    		<url> http://maven.petalslink.com/private-play-snapshot</url>
-		</repository>
 	</repositories>
 	
 	<dependencies>
@@ -104,6 +98,14 @@
 					<groupId>org.apache.jena</groupId>
 					<artifactId>jena-tdb</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>play-commons-constants</artifactId>
+					<groupId>eu.play-project</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>play-commons-eventformat</artifactId>
+					<groupId>eu.play-project</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -113,6 +115,14 @@
 				<exclusion>
 					<groupId>fr.inria.eventcloud</groupId>
 					<artifactId>eventcloud-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>play-commons-constants</artifactId>
+					<groupId>eu.play-project</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>play-commons-eventformat</artifactId>
+					<groupId>eu.play-project</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
