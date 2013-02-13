@@ -16,8 +16,6 @@ import eu.play_project.play_commons.constants.Stream;
  * 
  * @author Roland Stühmer, FZI
  * 
- * @version $Revision: 33586 $
- * 
  */
 public class TwitterService extends HttpServlet implements ServletContextListener {
 

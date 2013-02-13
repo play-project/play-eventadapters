@@ -7,8 +7,6 @@ import eu.play_project.play_eventadapter.AbstractReceiver;
  * 
  * @author stuehmer
  *
- * @version $Revision: 32270 $
- *
  */
 public class TestConsumerImpl extends AbstractReceiver {
 

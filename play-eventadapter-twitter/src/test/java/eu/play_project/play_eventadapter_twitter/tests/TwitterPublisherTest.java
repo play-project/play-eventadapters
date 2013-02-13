@@ -23,8 +23,6 @@ import eu.play_project.play_eventadapter_twitter.TwitterPublisher;
  * 
  * @author stuehmer
  *
- * @version $Revision: 34086 $
- *
  */
 public class TwitterPublisherTest {
 

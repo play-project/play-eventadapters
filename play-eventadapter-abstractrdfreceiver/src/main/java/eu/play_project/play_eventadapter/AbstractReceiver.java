@@ -52,8 +52,6 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  * 
  * @author stuehmer
  * 
- * @version $Revision: 34609 $
- * 
  */
 public abstract class AbstractReceiver {
 

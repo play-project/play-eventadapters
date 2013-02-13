@@ -29,8 +29,6 @@ import com.pachube.factory.PachubeFactory;
  * @author Atanas Kozarev, FZI
  * @author Roland Stühmer, FZI
  * 
- * @version $Revision: 34709 $
- * 
  */
 public class PachubeTrigger {
 

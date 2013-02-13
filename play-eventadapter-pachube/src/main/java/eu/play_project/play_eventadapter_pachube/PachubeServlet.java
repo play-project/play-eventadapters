@@ -53,8 +53,6 @@ import eu.play_project.play_eventadapter.AbstractSender;
  * @author Atanas Kozarev, FZI
  * @author Roland Stühmer, FZI
  * 
- * @version $Revision: 34709 $
- * 
  */
 public class PachubeServlet extends HttpServlet implements ServletContextListener {
 
