@@ -37,7 +37,7 @@ public class AbstractReceiverTest {
 			assertEquals("Parsed statements in model", 29, model.size());
 			
 			/*
-			 * Instanciate a Pachube event
+			 * Instantiate a Pachube event
 			 */
 			ReactorResult<? extends PachubeEvent> result = PachubeEvent.getAllInstances_as(model);
 			List<? extends PachubeEvent> l = result.asList();
