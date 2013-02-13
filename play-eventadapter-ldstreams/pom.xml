@@ -136,13 +136,11 @@
 		
 	
 		<!-- JDBM3 Dependency -->
-		<!--
 		<dependency>
 			<groupId>org.apache.jdbm</groupId>
 			<artifactId>jdbm</artifactId>
-			<version>3.0-SNAPSHOT</version>
+			<version>3.0-alpha5</version>
 		</dependency>
-		-->
 	</dependencies>
 	
 	<build> 
