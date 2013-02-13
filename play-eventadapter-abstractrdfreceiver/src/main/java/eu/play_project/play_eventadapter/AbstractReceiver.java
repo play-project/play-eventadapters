@@ -31,11 +31,13 @@ import org.petalslink.dsb.notification.client.http.simple.HTTPProducerClient;
 import org.petalslink.dsb.notification.client.http.simple.HTTPProducerRPClient;
 import org.petalslink.dsb.notification.client.http.simple.HTTPSubscriptionManagerClient;
 import org.petalslink.dsb.notification.commons.NotificationException;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import com.ebmwebsourcing.easycommons.xml.XMLHelper;
 import com.ebmwebsourcing.wsstar.basefaults.datatypes.impl.impl.WsrfbfModelFactoryImpl;
+import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.NotificationMessageHolderType;
+import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.NotificationMessageHolderType.Message;
+import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Notify;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.impl.impl.WsnbModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.resource.datatypes.impl.impl.WsrfrModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.resourcelifetime.datatypes.impl.impl.WsrfrlModelFactoryImpl;
@@ -71,16 +73,17 @@ public abstract class AbstractReceiver {
 
 	/**
 	 * Subscribe to a topic at the endpoint in
-	 * {@link AbstractReceiver#dsbSubscribe}.
+	 * {@link AbstractReceiver#dsbSubscribe}. The callback will be used by the
+	 * DSB to send the subscriptions.
 	 * 
 	 * @param topic
+	 * @param notificationsEndPoint
+	 *            callback SOAP URI to receive notifications
 	 * @throws NotificationException
 	 */
-	public void subscribe(QName topic) throws NotificationException {
+	public void subscribe(QName topic, String notificationsEndPoint) throws NotificationException {
 		HTTPProducerClient client = new HTTPProducerClient(dsbSubscribe);
 
-		String notificationsEndPoint = "http://demo.play-project.eu/webservice/";
-		// TODO stuehmer: this string should probably be configurable or be a method parameter
 		try {
 			String subscriptionId = client.subscribe(topic,
 					notificationsEndPoint);
@@ -181,6 +184,22 @@ public abstract class AbstractReceiver {
 	}
 	
 	/**
+	 * Retrieve RDF from the contents of an XML message.
+	 * 
+	 * @param notify
+	 * @return
+	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	 */
+	public Model parseRdf(Notify notify) throws NoRdfEventException {
+		for (NotificationMessageHolderType holder : notify.getNotificationMessage()) {
+			// we support only one event message per notify envelope, return immediately:
+			return parseRdf(holder.getMessage().getAny());
+		}
+		// If we reach this point past the loop, fail:
+		throw new NoRdfEventException("An event was receieved without a <wsnt:Message> element.");
+	}
+		
+	/**
 	 * Retrieve RDF from the contents of an XML message. 
 	 * 
 	 * @param xmlNotify
@@ -205,7 +224,6 @@ public abstract class AbstractReceiver {
 		/*
 		 * Find the RDF syntax
 		 */
-		NamedNodeMap nnm = playMsgElement.getAttributes();
 		Node syntaxAttribute = playMsgElement.getAttributes().getNamedItemNS(WSN_MSG_NS, WSN_MSG_SYNTAX_ATTRIBUTE);
 		if (syntaxAttribute != null && !syntaxAttribute.getTextContent().isEmpty()) {
 			syntax = syntaxAttribute.getTextContent();
