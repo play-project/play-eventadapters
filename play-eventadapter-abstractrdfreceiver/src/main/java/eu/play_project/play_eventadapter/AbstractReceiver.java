@@ -36,7 +36,6 @@ import org.w3c.dom.Node;
 import com.ebmwebsourcing.easycommons.xml.XMLHelper;
 import com.ebmwebsourcing.wsstar.basefaults.datatypes.impl.impl.WsrfbfModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.NotificationMessageHolderType;
-import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.NotificationMessageHolderType.Message;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Notify;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.impl.impl.WsnbModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.resource.datatypes.impl.impl.WsrfrModelFactoryImpl;
@@ -81,13 +80,14 @@ public abstract class AbstractReceiver {
 	 *            callback SOAP URI to receive notifications
 	 * @throws NotificationException
 	 */
-	public void subscribe(QName topic, String notificationsEndPoint) throws NotificationException {
+	public String subscribe(QName topic, String notificationsEndPoint) throws NotificationException {
 		HTTPProducerClient client = new HTTPProducerClient(dsbSubscribe);
 
 		try {
 			String subscriptionId = client.subscribe(topic,
 					notificationsEndPoint);
 			subscriptions.put(subscriptionId, topic);
+			return subscriptionId;
 		} catch (NotificationException e) {
 			logger.log(Level.WARNING, "Problem while subcribing to topic '"
 					+ topic + "' at DSB endpoint '" + dsbSubscribe + "'", e);
