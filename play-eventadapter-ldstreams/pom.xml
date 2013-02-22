@@ -133,7 +133,6 @@
 			<artifactId>xml-apis</artifactId>
 			<version>1.4.01</version>
 		</dependency>
-		
 	
 		<!-- JDBM3 Dependency -->
 		<dependency>
@@ -149,6 +148,14 @@
 		<testSourceDirectory>test</testSourceDirectory>
 
 		<plugins>
+			<!-- Do not deploy this artefact to maven repo, it is very big. :stuehmer  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>de.akquinet.innovation.play2</groupId>
 				<artifactId>play2-maven-plugin</artifactId>
