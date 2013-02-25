@@ -1,8 +1,6 @@
 package eu.play_project.play_eventadapter_facebook;
 
 
-import static eu.play_project.play_commons.constants.Namespace.EVENTS;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,16 +39,15 @@ import eu.play_project.play_eventadapter.AbstractSender;
 public class FacebookRealtimeServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 3521837119178997113L;
-	
+
 	static UserDatabase udb = new UserDatabase();
 	private static String VERIFY_TOKEN = FacebookUtil.getVerifyToken();
-	private static AbstractSender eventSender = new AbstractSender(Stream.FacebookStatusFeed.getTopicQName()) {}; 
-	private static Random random = new Random();
+	private static AbstractSender eventSender = new AbstractSender(Stream.FacebookStatusFeed.getTopicQName()) {};
 
 	@Override
 	public void init() throws ServletException {
-		
-		
+
+
 		super.init();
 	}
 
@@ -69,11 +65,11 @@ public class FacebookRealtimeServlet extends HttpServlet {
 	public void doPost(final HttpServletRequest req,
 			final HttpServletResponse resp) throws IOException {
 		Logger.getAnonymousLogger().info("Invoking doPost.");
-		
+
 		final BufferedReader reader = req.getReader();
 
 		String line = reader.readLine();
-		Logger.getAnonymousLogger().info("JSON Notification: " + line);		
+		Logger.getAnonymousLogger().info("JSON Notification: " + line);
 		try {
 
 			final JSONObject change = new JSONObject(line);
@@ -82,10 +78,10 @@ public class FacebookRealtimeServlet extends HttpServlet {
 			}
 
 			final JSONArray entries = change.getJSONArray("entry");
-			
+
 			for (int e = 0; e < entries.length(); ++e) {
 				final JSONObject entry = entries.getJSONObject(e);
-				
+
 				String facebookUserId = entry.getString("uid");
 				String facebookTime = entry.getString("time");
 
@@ -99,11 +95,11 @@ public class FacebookRealtimeServlet extends HttpServlet {
 				Logger.getAnonymousLogger().info("Statusupdate JSON is " + facebookStatusArray);
 
 				Set<FacebookStatusFeedEvent> events = createEventModels(facebookTime, facebookUserId, facebookUserInfo, facebookStatusArray);
-				
+
 				for (FacebookStatusFeedEvent event : events) {
 					Document payload = XMLHelper
 							.createDocumentFromString(EventHelpers.serialize(event));
-	
+
 					eventSender.notify(payload);
 				}
 
@@ -119,7 +115,7 @@ public class FacebookRealtimeServlet extends HttpServlet {
 					"Error in reading Facebook JSON data: ", e);
 		}
 	}
-	
+
 	/**
 	 * Return PLAY event models for FacebookStatusFeedEvents. This method can return more than one event
 	 * because a Facebook user might have created several status updates since the last Facebook
@@ -134,7 +130,7 @@ public class FacebookRealtimeServlet extends HttpServlet {
 	 * @throws ParseException
 	 */
 	public static Set<FacebookStatusFeedEvent> createEventModels(String time, String uid, JSONObject facebookUserInfo, JSONArray facebookStatusArray) throws JSONException, ParseException {
-		
+
 		String name = "";
 		String location= "";
 		Set<FacebookStatusFeedEvent> results = new HashSet<FacebookStatusFeedEvent>();
@@ -147,10 +143,10 @@ public class FacebookRealtimeServlet extends HttpServlet {
 			JSONObject loc = new JSONObject(locat);
 			location = loc.getString("name");
 			Logger.getAnonymousLogger()
-					.info("Location: " + location);
+			.info("Location: " + location);
 		} catch (JSONException e1) {
 			Logger.getAnonymousLogger()
-				.info("Location: no location was specified for this Facebook user.");
+			.info("Location: no location was specified for this Facebook user.");
 		}
 
 		for (int i = 0; i < facebookStatusArray.length(); ++i) {
@@ -164,7 +160,7 @@ public class FacebookRealtimeServlet extends HttpServlet {
 				SimpleDateFormat df = new SimpleDateFormat(
 						"yyyy-MM-dd:HH:mm:ss.SSS");
 				String datetime = df.format(messageTime);
-				Date date = (Date) df.parse(datetime);
+				Date date = df.parse(datetime);
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(date);
 
@@ -172,15 +168,15 @@ public class FacebookRealtimeServlet extends HttpServlet {
 
 				Logger.getAnonymousLogger().info(
 						"Message: '" + messageStatus
-								+ "' is sent from Facebook User: '"
-								+ name + "' in location: '" + location
-								+ "' at the TIME: '" + datetime + "'.");
+						+ "' is sent from Facebook User: '"
+						+ name + "' in location: '" + location
+						+ "' at the TIME: '" + datetime + "'.");
 				/*
 				 * Create event
 				 */
 				// Create an event ID used in RDF context and RDF subject
-				String eventId = EVENTS.getUri() + "facebook" + Math.abs(random.nextLong());
-				
+				String eventId = EventHelpers.createRandomEventId("facebook");
+
 				FacebookStatusFeedEvent event = new FacebookStatusFeedEvent(
 						// set the RDF context part
 						EventHelpers.createEmptyModel(eventId),
@@ -203,7 +199,7 @@ public class FacebookRealtimeServlet extends HttpServlet {
 		return results;
 
 	}
-	
+
 	private static String getUserInfo(String ID, String TOKEN) {
 		String sub = null;
 		try {

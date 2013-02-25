@@ -1,13 +1,11 @@
 package eu.play_project.play_eventadapter.tests;
 
 import static eu.play_project.play_commons.constants.Event.EVENT_ID_SUFFIX;
-import static eu.play_project.play_commons.constants.Namespace.EVENTS;
 import static eu.play_project.play_commons.constants.Stream.SituationalEventStream;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Calendar;
-import java.util.Random;
 
 import org.event_processing.events.types.CrisisMeasureEvent;
 import org.junit.Before;
@@ -21,7 +19,6 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
 public class AbstractSenderTest {
 
 	private SituationalEventSender eventSource;
-	private static Random random = new Random();
 
 	@Before
 	public void setup() {
@@ -33,7 +30,7 @@ public class AbstractSenderTest {
 	@Test
 	public void testNotifyModel() {
 		// Create an event ID used in RDF context and RDF subject
-		String eventId = EVENTS.getUri() + "crisis" + Math.abs(random.nextLong());
+		String eventId = EventHelpers.createRandomEventId("crisis");
 
 		CrisisMeasureEvent event = new CrisisMeasureEvent(
 				// set the RDF context part

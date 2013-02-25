@@ -1,10 +1,8 @@
 package eu.play_project.play_eventadapter_twitter;
 
 import static eu.play_project.play_commons.constants.Event.EVENT_ID_SUFFIX;
-import static eu.play_project.play_commons.constants.Namespace.EVENTS;
 
 import java.util.Calendar;
-import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -23,8 +21,6 @@ import eu.play_project.play_eventadapter.AbstractSender;
 
 public class TwitterPublisher extends AbstractSender {
 
-	private static Random random = new Random();
-
 	public TwitterPublisher(QName defaultTopic) {
 		super(defaultTopic);
 		Logger.getAnonymousLogger().info("Initialized event sender with default topic " + defaultTopic);
@@ -37,7 +33,7 @@ public class TwitterPublisher extends AbstractSender {
 	public Event createEvent(Status status)
 	{	
 		// Create an event ID used in RDF context and RDF subject
-		String eventId = EVENTS.getUri() + "twitter" + Math.abs(random.nextLong());
+		String eventId = EventHelpers.createRandomEventId("twitter");
 
 		TwitterEvent event = new TwitterEvent(
 				// set the RDF context part

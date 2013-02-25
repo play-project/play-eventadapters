@@ -7,8 +7,8 @@ import java.net.MalformedURLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Scanner;
+import java.util.UUID;
 
 import org.apache.abdera.i18n.templates.Template;
 import org.event_processing.events.types.PachubeEvent;
@@ -34,8 +34,6 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  */
 public class LiftingQueryTests {
 	
-	private static Random random = new Random();
-	
 	@Test
 	public void testPachubeLiftingQuery() throws MalformedURLException, IOException{
 		
@@ -47,7 +45,7 @@ public class LiftingQueryTests {
 		 */
 		System.out.println("############### Event headers: #################");
 		// Create an event ID used in RDF context and RDF subject
-		String eventId = Namespace.EVENTS.getUri() + "e" + Math.abs(random.nextLong());
+		String eventId = Namespace.EVENTS.getUri() + "e-" + UUID.randomUUID();
 		
 		PachubeEvent event = new PachubeEvent(
 				EventHelpers.createEmptyModel(eventId),

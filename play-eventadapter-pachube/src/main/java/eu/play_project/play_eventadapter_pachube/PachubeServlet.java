@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,8 +59,6 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 	private static final long serialVersionUID = 1L;
 	
 	private static AbstractSender eventSender = new AbstractSender(Stream.PachubeFeed.getTopicQName()) {}; 
-
-	private static Random random = new Random();
 	
 	/*
 	 * ============== Begin Testing ================================
@@ -111,7 +109,7 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 
     public static Model createEventModel(String jsonText) {
         
-		String eventId = EVENTS.getUri() + "pachube" + Math.abs(random.nextLong());
+		String eventId = EVENTS.getUri() + "pachube-" + UUID.randomUUID();
 		
 		// Create event with RDFReactor
 		PachubeEvent event = new PachubeEvent(
