@@ -1,86 +1,84 @@
-<?xml version="1.0" encoding="UTF-8"?><wsnt:Notify xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"><wsnt:NotificationMessage><wsnt:SubscriptionReference><wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:9998/foo/Endpoint</wsa:Address><wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing"/></wsnt:SubscriptionReference><wsnt:Topic xmlns:s="http://streams.event-processing.org/ids/" Dialect="http://docs.oasis-open.org/wsn/t-1/TopicExpression/Concrete">s:PachubeFeed</wsnt:Topic><wsnt:ProducerReference><wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:9998/foo/eu.play_project.play_eventadapter_pachube.PachubeServlet</wsa:Address><wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing"/></wsnt:ProducerReference><wsnt:Message><mt:nativeMessage xmlns:mt="http://www.event-processing.org/wsn/msgtype" mt:syntax="application/x-trig">
-  @prefix : &lt;http://events.event-processing.org/types/&gt; .
-  @prefix uctelco: &lt;http://events.event-processing.org/uc/telco/&gt; .
-  @prefix e: &lt;http://events.event-processing.org/ids/&gt; .
-  @prefix geo: &lt;http://www.w3.org/2003/01/geo/wgs84_pos#&gt; .
-  @prefix uccrisis: &lt;http://www.mines-albi.fr/nuclearcrisisevent#&gt; .
-  @prefix sioc: &lt;http://rdfs.org/sioc/ns#&gt; .
-  @prefix gn: &lt;http://www.geonames.org/ontology#&gt; .
-  @prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
-  @prefix s: &lt;http://streams.event-processing.org/ids/&gt; .
-  @prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
-  @prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
-  @prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
-  @prefix src: &lt;http://sources.event-processing.org/ids/&gt; .
-  @prefix types: &lt;http://events.event-processing.org/types/&gt; .
-  @prefix user: &lt;http://graph.facebook.com/schema/user#&gt; .
-  {
-  }
-  
-  e:pachube9664923999525468  {
-      _:b6918  &lt;http://www.linkedopenservices.org/ns/temp-json#triggering_datastream&gt;
-                      _:b6919 ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#timestamp&gt;
-                      "2012-04-01T02:00:06Z" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#threshold_value&gt;
-                      "null" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#type&gt;
-                      "change" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#environment&gt;
-                      _:b6920 ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#url&gt;
-                      "http://api.pachube.com/v2/triggers/6053" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#id&gt;
-                      "6053"^^xsd:short .
-      
-      &lt;http://events.event-processing.org/ids/pachube9664923999525468#event&gt;
-              :stream  s:PachubeFeed ;
-              :endTime  "2012-04-01T02:00:06.905Z"^^xsd:dateTime ;
-              rdf:type  :PachubeEvent .
-      
-      _:b6921  &lt;http://www.linkedopenservices.org/ns/temp-json#lon&gt;
-                      "151.755609512329" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#lat&gt;
-                      "-32.9454454043453" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#name&gt;
-                      "Pell" .
-      
-      _:b6922  &lt;http://www.linkedopenservices.org/ns/temp-json#max_value&gt;
-                      "16527.0"^^xsd:double ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#min_value&gt;
-                      "0.0"^^xsd:double ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#value&gt;
-                      "2139" .
-      
-      _:b6923  &lt;http://www.linkedopenservices.org/ns/temp-json#symbol&gt;
-                      "W" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#type&gt;
-                      "derivedSI" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#label&gt;
-                      "Watts" .
-      
-      _:b6920  &lt;http://www.linkedopenservices.org/ns/temp-json#location&gt;
-                      _:b6921 ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#id&gt;
-                      "9349"^^xsd:short ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#description&gt;
-                      "Solar Generation from a 3KW System" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#title&gt;
-                      "Solar Generation" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#private&gt;
-                      false ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#feed&gt;
-                      "http://api.pachube.com/v2/feeds/9349" .
-      
-      _:b6919  &lt;http://www.linkedopenservices.org/ns/temp-json#units&gt;
-                      _:b6923 ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#id&gt;
-                      "0" ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#value&gt;
-                      _:b6922 ;
-              &lt;http://www.linkedopenservices.org/ns/temp-json#url&gt;
-                      "http://api.pachube.com/v2/feeds/9349/datastreams/0" .
-      
-  }
-  
+<?xml version="1.0" encoding="UTF-8"?><wsnt:Notify xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"><wsnt:NotificationMessage><wsnt:SubscriptionReference><wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:9998/foo/Endpoint</wsa:Address><wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing"/></wsnt:SubscriptionReference><wsnt:Topic xmlns:s="http://streams.event-processing.org/ids/" Dialect="http://docs.oasis-open.org/wsn/t-1/TopicExpression/Concrete">s:PachubeFeed</wsnt:Topic><wsnt:ProducerReference><wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:9998/foo/AbstractSender</wsa:Address><wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing"/></wsnt:ProducerReference><wsnt:Message><mt:nativeMessage xmlns:mt="http://www.event-processing.org/wsn/msgtype/" mt:syntax="application/x-trig">@prefix sioc: &lt;http://rdfs.org/sioc/ns#&gt; .
+@prefix : &lt;http://events.event-processing.org/types/&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix uctelco: &lt;http://events.event-processing.org/uc/telco/&gt; .
+@prefix geo: &lt;http://www.w3.org/2003/01/geo/wgs84_pos#&gt; .
+@prefix e: &lt;http://events.event-processing.org/ids/&gt; .
+@prefix s: &lt;http://streams.event-processing.org/ids/&gt; .
+@prefix uccrisis: &lt;http://www.mines-albi.fr/nuclearcrisisevent/&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix src: &lt;http://sources.event-processing.org/ids/&gt; .
+@prefix user: &lt;http://graph.facebook.com/schema/user#&gt; .
+{
+}
+
+e:pachube6798066739470314891  {
+    _:b0    &lt;http://www.linkedopenservices.org/ns/temp-json#label&gt;
+                    "Watts" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#symbol&gt;
+                    "W" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#type&gt;
+                    "" .
+    
+    _:b0    &lt;http://www.linkedopenservices.org/ns/temp-json#triggering_datastream&gt;
+                    _:b0 ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#environment&gt;
+                    _:b0 ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#timestamp&gt;
+                    "2013-03-05T23:57:07.131427Z" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#threshold_value&gt;
+                    "null" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#type&gt;
+                    "change" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#url&gt;
+                    "http://api.cosm.com/v2/triggers/18993" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#id&gt;
+                    "18993"^^&lt;http://www.w3.org/2001/XMLSchema#short&gt; .
+    
+    &lt;http://events.event-processing.org/ids/pachube6798066739470314891#event&gt;
+            :rawData  _:b0 ;
+            :stream  &lt;http://streams.event-processing.org/ids/PachubeFeed#stream&gt; ;
+            :endTime  "2013-03-05T23:57:08.653Z"^^&lt;http://www.w3.org/2001/XMLSchema#dateTime&gt; ;
+            rdf:type  :PachubeEvent .
+    
+    _:b0    &lt;http://www.linkedopenservices.org/ns/temp-json#name&gt;
+                    "Saint Paul, MN" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#lon&gt;
+                    "-93.0881881713867" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#lat&gt;
+                    "44.9525213165734" .
+    
+    _:b0    &lt;http://www.linkedopenservices.org/ns/temp-json#value&gt;
+                    "2945" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#min_value&gt;
+                    "10.0"^^&lt;http://www.w3.org/2001/XMLSchema#double&gt; ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#max_value&gt;
+                    "8374.0"^^&lt;http://www.w3.org/2001/XMLSchema#double&gt; .
+    
+    _:b0    &lt;http://www.linkedopenservices.org/ns/temp-json#location&gt;
+                    _:b0 ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#private&gt;
+                    "false"^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt; ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#description&gt;
+                    "Measurements of home Solar PV production, household use, and net utility power in/out.\r\n\r\nMonitoring hardware based on http://openenergymonitor.org" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#title&gt;
+                    "Household Electricity Data" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#feed&gt;
+                    "http://api.cosm.com/v2/feeds/10094" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#id&gt;
+                    "10094"^^&lt;http://www.w3.org/2001/XMLSchema#short&gt; .
+    
+    _:b0    &lt;http://www.linkedopenservices.org/ns/temp-json#value_description&gt;
+                    _:b0 ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#units&gt;
+                    _:b0 ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#at&gt;
+                    "2013-03-05T23:57:07.036956Z" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#url&gt;
+                    "http://api.cosm.com/v2/feeds/10094/datastreams/0" ;
+            &lt;http://www.linkedopenservices.org/ns/temp-json#id&gt;
+                    "0" .
+    
+}
 </mt:nativeMessage></wsnt:Message></wsnt:NotificationMessage></wsnt:Notify>

@@ -4,9 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Random;
 
+import javax.xml.namespace.QName;
+
+import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.PachubeEvent;
 import org.event_processing.events.types.UcTelcoClic2Call;
 import org.event_processing.events.types.UcTelcoGeoLocation;
@@ -14,7 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdfreactor.runtime.ReactorResult;
+import org.petalslink.dsb.notification.commons.NotificationException;
 
+import eu.play_project.play_commons.constants.Namespace;
 import eu.play_project.play_eventadapter.NoRdfEventException;
 
 public class AbstractReceiverTest {
@@ -27,14 +33,14 @@ public class AbstractReceiverTest {
 	}
 	
 	@Test
-	public void testPachubeNotify() {
+	public void testPachubeNotify() throws IOException {
 		try {
-			String xmlText = new Scanner(this.getClass().getClassLoader().getResourceAsStream("PachubeEvent.notify.xml")).useDelimiter("\\A").next();
+			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("PachubeEvent.notify.xml"), "UTF-8");
 			/*
 			 * Read RDF from the XML message
 			 */
 			Model model = eventConsumer.parseRdf(xmlText);
-			assertEquals("Parsed statements in model", 29, model.size());
+			assertEquals("Parsed statements in model", 31, model.size());
 			
 			/*
 			 * Instantiate a Pachube event
@@ -48,16 +54,16 @@ public class AbstractReceiverTest {
 			 */
 			PachubeEvent event = l.get(0);
 			assertEquals("Checking for event timestamp", javax.xml.bind.DatatypeConverter
-					.parseDateTime("2012-04-01T02:00:06.905Z"), event.getEndTime());
+					.parseDateTime("2013-03-05T23:57:08.653Z"), event.getEndTime());
 		} catch (NoRdfEventException e) {
 			fail(e.getMessage());
 		}
 	}
 	
 	@Test
-	public void testTaxiUCGeoLocationEvent() {
+	public void testTaxiUCGeoLocationEvent() throws IOException {
 		try {
-			String xmlText = new Scanner(this.getClass().getClassLoader().getResourceAsStream("TaxiUCGeoLocation.notify.xml")).useDelimiter("\\A").next();
+			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("TaxiUCGeoLocation.notify.xml"), "UTF-8");
 			/*
 			 * Read RDF from the XML message
 			 */
@@ -82,9 +88,9 @@ public class AbstractReceiverTest {
 	}
 	
 	@Test
-	public void testUcTelcoClic2CallEvent() {
+	public void testUcTelcoClic2CallEvent() throws IOException {
 		try {
-			String xmlText = new Scanner(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml")).useDelimiter("\\A").next();
+			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), "UTF-8");
 			/*
 			 * Read RDF from the XML message
 			 */
@@ -111,8 +117,8 @@ public class AbstractReceiverTest {
 	}
 	
 	@Test
-	public void testGenericEvent() {
-		String xmlText = new Scanner(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml")).useDelimiter("\\A").next();
+	public void testGenericEvent() throws IOException {
+		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), "UTF-8");
 
 		UcTelcoClic2Call clic2callEvent;
 		try {
@@ -132,12 +138,11 @@ public class AbstractReceiverTest {
 	 * This test should throw an exception because an non-rdf event is parsed.
 	 * 
 	 * @throws NoRdfEventException
+	 * @throws IOException
 	 */
 	@Test(expected = NoRdfEventException.class)
-	public void testNonRdfMessageException() throws NoRdfEventException {
-		String xmlText = new Scanner(this.getClass().getClassLoader()
-				.getResourceAsStream("NonRDFEvent.soap.xml")).useDelimiter(
-				"\\A").next();
+	public void testNonRdfMessageException() throws NoRdfEventException, IOException {
+		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("NonRDFEvent.soap.xml"), "UTF-8");
 		/*
 		 * Read RDF from the XML message
 		 */
@@ -157,5 +162,12 @@ public class AbstractReceiverTest {
 		 */
 		UcTelcoGeoLocation event = l.get(0);
 		assertNotNull("Checking for an event location", event.getLocation());
+	}
+	
+	@Test
+	public void testSubscribe() throws NotificationException {
+		//QName topic = QName.valueOf("{http://streams.event-processing.org/ids}PersonalMonitoring");
+		QName topic = new QName(Namespace.STREAMS.getUri(), "PersonalMonitoring", Namespace.STREAMS.getPrefix());
+		eventConsumer.subscribe(topic, "http://kalmar14.fzi.de:8084/play-dcep/NotificationConsumerService" + Math.abs(new Random().nextLong()));
 	}
 }
