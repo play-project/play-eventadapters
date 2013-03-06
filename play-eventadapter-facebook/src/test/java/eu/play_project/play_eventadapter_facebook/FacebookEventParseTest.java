@@ -4,12 +4,13 @@ import static eu.play_project.play_commons.constants.Namespace.EVENTS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.text.ParseException;
-import java.util.Scanner;
 import java.util.Set;
 
 import javax.servlet.ServletException;
 
+import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.FacebookStatusFeedEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +29,7 @@ import eu.play_project.play_eventadapter.AbstractSender;
 
 public class FacebookEventParseTest {
 	
-	private static AbstractSender eventSender = new AbstractSender(Stream.FacebookStatusFeed.getTopicQName()) {}; 
+	private static AbstractSender eventSender = new AbstractSender(Stream.FacebookStatusFeed.getTopicQName()) {};
 
 	@Before
 	public void before() throws ServletException {
@@ -37,12 +38,12 @@ public class FacebookEventParseTest {
 	}
 
 	@Test
-	public void testFacebookEventCreation() throws JSONException, ParseException, InvalidEventException {
+	public void testFacebookEventCreation() throws JSONException, ParseException, InvalidEventException, IOException {
 		// Initialize mock test data
 		String facebookTime = "1329733944"; // Must match the time of the status update in JSON
 		String facebookUid = "100000058455726";
-		JSONObject facebookUserInfo = new JSONObject(new Scanner(Test.class.getClassLoader().getResourceAsStream("FacebookEventParseTest-userinfo.json")).useDelimiter("\\A").next());
-		JSONArray facebookStatusArray = new JSONArray(new Scanner(Test.class.getClassLoader().getResourceAsStream("FacebookEventParseTest-statusarray.json")).useDelimiter("\\A").next());
+		JSONObject facebookUserInfo = new JSONObject(IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("FacebookEventParseTest-userinfo.json"), "UTF-8"));
+		JSONArray facebookStatusArray = new JSONArray(IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("FacebookEventParseTest-statusarray.json"), "UTF-8"));
 
 		Set<FacebookStatusFeedEvent> events = FacebookRealtimeServlet.createEventModels(facebookTime, facebookUid, facebookUserInfo, facebookStatusArray);
 		

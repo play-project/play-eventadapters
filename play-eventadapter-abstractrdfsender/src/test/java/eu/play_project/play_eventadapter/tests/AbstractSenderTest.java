@@ -15,14 +15,15 @@ import org.ontoware.rdf2go.model.node.impl.URIImpl;
 import eu.play_project.platformservices.eventvalidation.InvalidEventException;
 import eu.play_project.platformservices.eventvalidation.Validator;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
+import eu.play_project.play_eventadapter.AbstractSender;
 
 public class AbstractSenderTest {
 
-	private SituationalEventSender eventSource;
+	private AbstractSender eventSource;
 
 	@Before
 	public void setup() {
-		eventSource = new SituationalEventSender(SituationalEventStream.getTopicQName());
+		eventSource = new AbstractSender(SituationalEventStream.getTopicQName());
 		// Only for unit testing:
 		eventSource.setNoNetworking(true);
 	}
@@ -50,7 +51,7 @@ public class AbstractSenderTest {
 		event.setCrisisUid(eventId);
 		event.setCrisisUnit("MHz");
 		event.setCrisisValue("123");
-		event.setCrisisComponentSeid("someSEID");	
+		event.setCrisisComponentSeid("someSEID");
 		
 		eventSource.notify(event, SituationalEventStream.getTopicQName());
 		

@@ -30,6 +30,7 @@ import com.ebmwebsourcing.wsstar.wsnb.services.INotificationConsumer;
 import com.ebmwebsourcing.wsstar.wsnb.services.impl.util.Wsnb4ServUtils;
 
 import eu.play_project.play_commons.constants.Constants;
+import eu.play_project.play_commons.eventformat.xml.DocumentBuilder;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
 
 public class AbstractSender {
@@ -46,7 +47,7 @@ public class AbstractSender {
 	/** Default SOAP endpoint for notifications */
 	private String dsbNotify = Constants.getProperties().getProperty(
 			"dsb.notify.endpoint");
-	private Logger logger = Logger.getAnonymousLogger();
+	private final Logger logger = Logger.getAnonymousLogger();
 	private QName defaultTopic;
 	private String producerAddress = "http://localhost:9998/foo/"
 			+ AbstractSender.class.getSimpleName();
@@ -72,7 +73,7 @@ public class AbstractSender {
 	}
 
 	/**
-	 * Send a {@linkplain Model} to the default Topic.
+	 * Send a {@linkplain Model} to the default topic.
 	 */
 	public void notify(Model model) {
 		notify(model, this.defaultTopic);
@@ -96,7 +97,7 @@ public class AbstractSender {
 	}
 
 	/**
-	 * Send a {@linkplain String} payload to the default Topic.
+	 * Send a {@linkplain String} payload to the default topic.
 	 */
 	public void notify(String notifPayload) {
 		notify(notifPayload, this.defaultTopic);
@@ -118,7 +119,23 @@ public class AbstractSender {
 	}
 
 	/**
-	 * Send a {@linkplain Document} payload to the default Topic.
+	 * Send an {@linkplain Element} payload to the default topic.
+	 */
+	public void notify(Element notifPayload) {
+		notify(notifPayload, this.defaultTopic);
+	}
+
+	/**
+	 * Send an {@linkplain Element} payload to a specific topic.
+	 */
+	public void notify(Element notifPayload, QName topicUsed) {
+		Document doc = DocumentBuilder.createDocument();
+		doc.adoptNode(notifPayload);
+		notify(doc, topicUsed);
+	}
+	
+	/**
+	 * Send a {@linkplain Document} payload to the default topic.
 	 */
 	public void notify(Document notifPayload) {
 		notify(notifPayload, this.defaultTopic);
@@ -139,8 +156,7 @@ public class AbstractSender {
 		try {
 			notify = NotificationHelper.createNotification(producerAddress,
 					endpointAddress, uuid, topicUsed, dialect, notifPayload);
-			Document dom = Wsnb4ServUtils.getWsnbWriter().writeNotifyAsDOM(
-					notify);
+			//Document dom = Wsnb4ServUtils.getWsnbWriter().writeNotifyAsDOM(notify);
 
 			INotificationConsumer consumerClient = new HTTPNotificationConsumerClient(
 					dsbNotify);

@@ -7,10 +7,10 @@ import java.net.MalformedURLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.UUID;
 
 import org.apache.abdera.i18n.templates.Template;
+import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.PachubeEvent;
 import org.junit.Test;
 import org.linkedopenservices.json2rdf.JSON2RDF;
@@ -27,8 +27,8 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  * @author Roland Stühmer
  * 
  *Class to illustrate the use of JSON2RDF:
- *uses the tmdb (http://themoviedb.org) JSON API to query for information about a movie 
- *and wraps the replied JSON in RDF. 
+ *uses the tmdb (http://themoviedb.org) JSON API to query for information about a movie
+ *and wraps the replied JSON in RDF.
  *Semantics are injected by executing a CONSTRUCT query over the build RDF
  *
  */
@@ -37,8 +37,9 @@ public class LiftingQueryTests {
 	@Test
 	public void testPachubeLiftingQuery() throws MalformedURLException, IOException{
 		
-		String liftingQuery = new Scanner(this.getClass().getClassLoader().getResourceAsStream("liftingQueryPachube.rq")).useDelimiter("\\A").next();
-		String json = new Scanner(Test.class.getClassLoader().getResourceAsStream("pachube.json")).useDelimiter("\\A").next();
+		
+		String liftingQuery = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("liftingQueryPachube.rq"), "UTF-8");
+		String json = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("pachube.json"), "UTF-8");
 		
 		/*
 		 * Event object:
@@ -67,7 +68,7 @@ public class LiftingQueryTests {
 		Map<String, Template> map = new HashMap<String, Template>(); //this map was used to build new URIs, but is not longer needed (i.e., stays empty) since SPARQL 1.1 is capable to do this by it self
 
 		// Fetch JSON from a URL:
-		//String url="https://api.pachube.com/v2/feeds/34843.json?key=APIKEY"; 
+		//String url="https://api.pachube.com/v2/feeds/34843.json?key=APIKEY";
 		//Model eventBody = myTransformer.getJSON2RDF(new URL(url), map); //load JSON as RDF directly in a RDF2go model
 		
 		// or fetch JSON from a file:
@@ -92,7 +93,7 @@ public class LiftingQueryTests {
 		meaningfulRdf.addAll(genericRdf.sparqlConstruct(liftingQuery).iterator());
 		
 		//print out the meaningful model
-		meaningfulRdf.writeTo(System.out, Syntax.Ntriples);		
+		meaningfulRdf.writeTo(System.out, Syntax.Ntriples);
 		System.out.println();
 		
 		/*

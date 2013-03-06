@@ -4,10 +4,11 @@ import static eu.play_project.play_commons.constants.Namespace.EVENTS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Scanner;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 
+import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.PachubeEvent;
 import org.junit.After;
 import org.junit.Before;
@@ -19,14 +20,13 @@ import org.ontoware.rdf2go.model.node.impl.URIImpl;
 import org.ontoware.rdf2go.vocabulary.RDF;
 
 import eu.play_project.platformservices.eventvalidation.InvalidEventException;
-import eu.play_project.platformservices.eventvalidation.Validator;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_eventadapter.AbstractSender;
 import eu.play_project.play_eventadapter_pachube.PachubeServlet;
 
 public class PachubeEventParseTest {
 
-	private static AbstractSender eventSender = new AbstractSender(Stream.PachubeFeed.getTopicQName()) {}; 
+	private static AbstractSender eventSender = new AbstractSender(Stream.PachubeFeed.getTopicQName()) {};
 	
 	@Before
 	public void before() throws ServletException {
@@ -37,13 +37,13 @@ public class PachubeEventParseTest {
 
 	@After
 	public void after() {
-		PachubeServlet.destroySesame();	
+		PachubeServlet.destroySesame();
 	}
 	
 	@Test
-	public void testPachubeEventCreation() throws InvalidEventException {
+	public void testPachubeEventCreation() throws InvalidEventException, IOException {
 
-		String jsonText = new Scanner(Test.class.getClassLoader().getResourceAsStream("pachube.json")).useDelimiter("\\A").next();
+		String jsonText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("pachube.json"), "UTF-8");
 
 		Model m  = PachubeServlet.createEventModel(jsonText);
 		
@@ -58,7 +58,7 @@ public class PachubeEventParseTest {
 		assertTrue("Property to be lifted.", m.contains(Variable.ANY, new URIImpl("http://www.linkedopenservices.org/ns/temp-json#value_description"), Variable.ANY));
 
 		// Validate the resulting RDF
-		Validator v = new Validator().checkModel(m.getContextURI(), m);
+		//Validator v = new Validator().checkModel(m.getContextURI(), m);
 		//assertTrue("The created event did not pass the PLAY sanity checks for events.", v.isValid());
 		// FIXME stuehmer: Pachube events must be skolemized to pass this test
 		

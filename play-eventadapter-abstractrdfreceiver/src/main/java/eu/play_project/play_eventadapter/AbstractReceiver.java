@@ -19,7 +19,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.exception.ModelRuntimeException;
@@ -65,10 +71,10 @@ public abstract class AbstractReceiver {
 
 	private String dsbSubscribe = Constants.getProperties().getProperty(
 			"dsb.subscribe.endpoint");
-	private String dsbUnSubscribe = Constants.getProperties().getProperty(
+	private final String dsbUnSubscribe = Constants.getProperties().getProperty(
 			"dsb.unsubscribe.endpoint");
-	private Logger logger = Logger.getAnonymousLogger();
-	private Map<String, QName> subscriptions = Collections.synchronizedMap(new HashMap<String, QName>());
+	private final Logger logger = Logger.getAnonymousLogger();
+	private final Map<String, QName> subscriptions = Collections.synchronizedMap(new HashMap<String, QName>());
 
 	/**
 	 * Subscribe to a topic at the endpoint in
@@ -200,7 +206,7 @@ public abstract class AbstractReceiver {
 	}
 		
 	/**
-	 * Retrieve RDF from the contents of an XML message. 
+	 * Retrieve RDF from the contents of an XML message.
 	 * 
 	 * @param xmlNotify
 	 * @return
@@ -212,8 +218,20 @@ public abstract class AbstractReceiver {
 		ModelSet rdf = EventHelpers.createEmptyModelSet();
 		// The RDF syntax (serialization format):
 		String syntax;
+		
+		//Evaluate XPath against Document itself
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		xPath.setNamespaceContext(nc);
+		Node playMsgElement = null;
+		
+		try {
+			// Select the first [1] WSN_MSG_ELEMENT in document order:
+			playMsgElement = (Node)xPath.evaluate("(//" + WSN_MSG_ELEMENT.getPrefix() + ":" + WSN_MSG_ELEMENT.getLocalPart() + ")[1]",
+					xmlNotify, XPathConstants.NODE);
+		} catch (XPathExpressionException e) {
+			throw new NoRdfEventException("An event was receieved with no or wrong content element: " + WSN_MSG_ELEMENT + ". " + e.getMessage());
+		}
 
-		Node playMsgElement = XMLHelper.findChild(xmlNotify, WSN_MSG_ELEMENT.getNamespaceURI(), WSN_MSG_ELEMENT.getLocalPart(), true);
 		String playMsgContent = (playMsgElement != null && playMsgElement.getTextContent() != null) ? playMsgElement.getTextContent() : "";
 		if (playMsgContent.isEmpty()) {
 			throw new NoRdfEventException("An event was receieved with no or empty content element: " + WSN_MSG_ELEMENT);
@@ -254,7 +272,7 @@ public abstract class AbstractReceiver {
 			long tempSize = temp.size();
 			if (tempSize > max) {
 				max = tempSize;
-				model = temp;																																		
+				model = temp;
 			}
 		}
 		
@@ -271,7 +289,7 @@ public abstract class AbstractReceiver {
 				model = temp;
 			}
 
-		}		
+		}
 		return EventHelpers.addNamespaces(model);
 	}
 	
@@ -288,7 +306,7 @@ public abstract class AbstractReceiver {
 			return this.getEvent(XMLHelper.createDocumentFromString(stringNotify), type);
 		} catch (Exception e) {
 			throw new NoRdfEventException("Exception while reading RDF event from XML message.", e);
-		} 
+		}
 	}
 
 	/**
@@ -328,5 +346,30 @@ public abstract class AbstractReceiver {
 		this.dsbSubscribe = dsbSubscribe;
 	}
 	
-	
+	private final NamespaceContext nc = new NamespaceContext() {
+		@Override
+		public String getNamespaceURI(String prefix) {
+			if (prefix == null)
+				throw new NullPointerException("Null prefix");
+			else if (WSN_MSG_ELEMENT.getPrefix().equals(prefix))
+				return WSN_MSG_ELEMENT.getNamespaceURI();
+			else if ("xml".equals(prefix))
+				return XMLConstants.XML_NS_URI;
+			return XMLConstants.NULL_NS_URI;
+		}
+
+		// This method isn't necessary for XPath processing.
+		@Override
+		public String getPrefix(String uri) {
+			throw new UnsupportedOperationException();
+		}
+
+		// This method isn't necessary for XPath processing either.
+		@SuppressWarnings("rawtypes")
+		@Override
+		public Iterator getPrefixes(String uri) {
+			throw new UnsupportedOperationException();
+		}
+	};
+
 }

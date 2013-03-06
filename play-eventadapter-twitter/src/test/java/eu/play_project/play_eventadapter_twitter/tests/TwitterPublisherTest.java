@@ -3,8 +3,9 @@ package eu.play_project.play_eventadapter_twitter.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Scanner;
+import java.io.IOException;
 
+import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.Event;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +37,8 @@ public class TwitterPublisherTest {
 	}
 	
 	@Test
-	public void testCreateEvent() throws TwitterException, InvalidEventException {
-		String jsonText = new Scanner(this.getClass().getClassLoader().getResourceAsStream("TestTwitterStatus.json")).useDelimiter("\\A").next();
+	public void testCreateEvent() throws TwitterException, InvalidEventException, IOException {
+		String jsonText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("TestTwitterStatus.json"), "UTF-8");
 		
 		Status status = DataObjectFactory.createStatus(jsonText);
 		
