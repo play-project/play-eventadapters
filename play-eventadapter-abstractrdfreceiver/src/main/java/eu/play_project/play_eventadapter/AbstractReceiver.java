@@ -96,7 +96,9 @@ public abstract class AbstractReceiver {
 			return subscriptionId;
 		} catch (NotificationException e) {
 			logger.log(Level.WARNING, "Problem while subcribing to topic '"
-					+ topic + "' at DSB endpoint '" + dsbSubscribe + "'", e);
+					+ topic + "' at DSB endpoint '" + dsbSubscribe
+					+ "' with callback endpoint '" + notificationsEndPoint
+					+ "'", e);
 			throw e;
 		}
 
