@@ -20,16 +20,17 @@ import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdfreactor.runtime.ReactorResult;
 import org.petalslink.dsb.notification.commons.NotificationException;
 
-import eu.play_project.play_commons.constants.Namespace;
+import eu.play_project.play_commons.constants.Stream;
+import eu.play_project.play_eventadapter.AbstractReceiver;
 import eu.play_project.play_eventadapter.NoRdfEventException;
 
 public class AbstractReceiverTest {
 
-	private TestConsumerImpl eventConsumer;
+	private AbstractReceiver eventConsumer;
 	
 	@Before
 	public void setup() {
-		eventConsumer = new TestConsumerImpl();
+		eventConsumer = new AbstractReceiver() {};
 	}
 	
 	@Test
@@ -166,8 +167,7 @@ public class AbstractReceiverTest {
 	
 	@Test
 	public void testSubscribe() throws NotificationException {
-		//QName topic = QName.valueOf("{http://streams.event-processing.org/ids}PersonalMonitoring");
-		QName topic = new QName(Namespace.STREAMS.getUri(), "PersonalMonitoring", Namespace.STREAMS.getPrefix());
+		QName topic = Stream.PachubeFeed.getTopicQName();
 		eventConsumer.subscribe(topic, "http://kalmar14.fzi.de:8084/play-dcep/NotificationConsumerService" + Math.abs(new Random().nextLong()));
 	}
 }
