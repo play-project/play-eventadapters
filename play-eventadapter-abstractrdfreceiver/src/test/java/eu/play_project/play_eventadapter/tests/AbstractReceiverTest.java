@@ -6,9 +6,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
-
-import javax.xml.namespace.QName;
 
 import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.PachubeEvent;
@@ -18,9 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdfreactor.runtime.ReactorResult;
-import org.petalslink.dsb.notification.commons.NotificationException;
 
-import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_eventadapter.AbstractReceiver;
 import eu.play_project.play_eventadapter.NoRdfEventException;
 
@@ -164,10 +159,5 @@ public class AbstractReceiverTest {
 		UcTelcoGeoLocation event = l.get(0);
 		assertNotNull("Checking for an event location", event.getLocation());
 	}
-	
-	@Test
-	public void testSubscribe() throws NotificationException {
-		QName topic = Stream.PachubeFeed.getTopicQName();
-		eventConsumer.subscribe(topic, "http://kalmar14.fzi.de:8084/play-dcep/NotificationConsumerService" + Math.abs(new Random().nextLong()));
-	}
+
 }
