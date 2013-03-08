@@ -71,7 +71,7 @@ public abstract class AbstractReceiver {
 
 	private String dsbSubscribe = Constants.getProperties().getProperty(
 			"dsb.subscribe.endpoint");
-	private final String dsbUnSubscribe = Constants.getProperties().getProperty(
+	private String dsbUnsubscribe = Constants.getProperties().getProperty(
 			"dsb.unsubscribe.endpoint");
 	private final Logger logger = Logger.getAnonymousLogger();
 	private final Map<String, QName> subscriptions = Collections.synchronizedMap(new HashMap<String, QName>());
@@ -113,7 +113,7 @@ public abstract class AbstractReceiver {
 	public void unsubscribe(String subscriptionId)
 			throws NotificationException {
 		HTTPSubscriptionManagerClient subscriptionManagerClient = new HTTPSubscriptionManagerClient(
-				dsbUnSubscribe);
+				dsbUnsubscribe);
 		try {
 			subscriptionManagerClient.unsubscribe(subscriptionId);
 			subscriptions.remove(subscriptionId);
@@ -136,7 +136,6 @@ public abstract class AbstractReceiver {
 		for (Iterator<String> it = subscriptions.keySet().iterator(); it.hasNext();) {
 			try {
 				unsubscribe(it.next());
-				it.remove();
 			} catch (NotificationException e) {
 				failCount++;
 			}
@@ -340,12 +339,35 @@ public abstract class AbstractReceiver {
 	}
 
 	/**
-	 * Overwrite the default subscribe endpoint.
+	 * Get the current subscribe endpoint.
+	 */
+	public String getDsbSubscribe() {
+		return this.dsbSubscribe;
+	}
+	
+	/**
+	 * Overwrite the subscribe endpoint.
 	 * 
 	 * @param dsbSubscribe
 	 */
 	public void setDsbSubscribe(String dsbSubscribe) {
 		this.dsbSubscribe = dsbSubscribe;
+	}
+	
+	/**
+	 * Get the current <b>un</b>subscribe endpoint.
+	 */
+	public String getDsbUnsubscribe() {
+		return this.dsbUnsubscribe;
+	}
+	
+	/**
+	 * Overwrite the <b>un</b>subscribe endpoint.
+	 * 
+	 * @param dsbUnsubscribe
+	 */
+	public void setDsbUnsubscribe(String dsbUnSubscribe) {
+		this.dsbUnsubscribe = dsbUnSubscribe;
 	}
 	
 	private final NamespaceContext nc = new NamespaceContext() {
