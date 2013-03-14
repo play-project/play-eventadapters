@@ -29,5 +29,5 @@ Other
 -----
 [Reports](http://play-project.github.com/play-eventadapters/site/1.0-SNAPSHOT/project-reports.html) |
 [JavaDoc](http://play-project.github.com/play-eventadapters/site/1.0-SNAPSHOT/apidocs/index.html) |
-[DOAP](http://play-project.github.com/play-eventadapters/site/1.0-SNAPSHOT/doap_play-eventadapters-parent.rdf) |
+[DOAP](http://play-project.github.com/play-eventadapters/site/1.0-SNAPSHOT/doap.rdf) |
 [License](LICENSE.txt)
