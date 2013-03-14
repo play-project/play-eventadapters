@@ -13,9 +13,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -133,9 +135,11 @@ public abstract class AbstractReceiver {
 	 */
 	public void unsubscribeAll() {
 		int failCount = 0;
-		for (Iterator<String> it = subscriptions.keySet().iterator(); it.hasNext();) {
+		// Make a copy of the collection because it will be modified in #unsubscribe()
+		Set<String> removal = new HashSet<String>(subscriptions.keySet());
+		for (String subscriptionID : removal) {
 			try {
-				unsubscribe(it.next());
+				unsubscribe(subscriptionID);
 			} catch (NotificationException e) {
 				failCount++;
 			}
