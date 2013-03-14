@@ -130,7 +130,7 @@ public class AbstractSender {
 	 */
 	public void notify(Element notifPayload, QName topicUsed) {
 		Document doc = DocumentBuilder.createDocument();
-		doc.adoptNode(notifPayload);
+		doc.appendChild(doc.adoptNode(notifPayload));
 		notify(doc, topicUsed);
 	}
 	
@@ -156,7 +156,6 @@ public class AbstractSender {
 		try {
 			notify = NotificationHelper.createNotification(producerAddress,
 					endpointAddress, uuid, topicUsed, dialect, notifPayload);
-			//Document dom = Wsnb4ServUtils.getWsnbWriter().writeNotifyAsDOM(notify);
 
 			INotificationConsumer consumerClient = new HTTPNotificationConsumerClient(
 					dsbNotify);
@@ -225,5 +224,4 @@ public class AbstractSender {
 	public void setNoNetworking(Boolean offline) {
 		this.online = !offline;
 	}
-
 }
