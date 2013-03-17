@@ -71,17 +71,36 @@ public abstract class AbstractReceiver {
 				new WsnbModelFactoryImpl());
 	}
 
-	private String dsbSubscribe = Constants.getProperties().getProperty(
-			"dsb.subscribe.endpoint");
-	private String dsbUnsubscribe = Constants.getProperties().getProperty(
-			"dsb.unsubscribe.endpoint");
+	private final String dsbSubscribe;
+	private final String dsbUnsubscribe;
 	private final Logger logger = Logger.getAnonymousLogger();
 	private final Map<String, QName> subscriptions = Collections.synchronizedMap(new HashMap<String, QName>());
 
 	/**
+	 * Create an {@linkplain AbstractReceiver} using the specified PLAY DSB endpoints
+	 * to make subscriptions.
+	 */
+	public AbstractReceiver(String dsbSubscribeEndpoint, String dsbUnsubscribeEndpoint) {
+		this.dsbSubscribe = dsbSubscribeEndpoint;
+		this.dsbUnsubscribe = dsbUnsubscribeEndpoint;
+	}
+
+	/**
+	 * Create an {@linkplain AbstractReceiver} using the default PLAY DSB endpoints
+	 * to make subscriptions.
+	 */
+	public AbstractReceiver() {
+		this.dsbSubscribe = Constants.getProperties().getProperty(
+				"dsb.subscribe.endpoint");
+		this.dsbUnsubscribe = Constants.getProperties().getProperty(
+				"dsb.unsubscribe.endpoint");
+	}
+
+	/**
 	 * Subscribe to a topic at the endpoint in
 	 * {@link AbstractReceiver#dsbSubscribe}. The callback will be used by the
-	 * DSB to send the subscriptions.
+	 * DSB to send the subscriptions. It is your responsibility to prevent/avoid
+	 * duplicate subscriptions if needed.
 	 * 
 	 * @param topic
 	 * @param notificationsEndPoint
@@ -350,28 +369,10 @@ public abstract class AbstractReceiver {
 	}
 	
 	/**
-	 * Overwrite the subscribe endpoint.
-	 * 
-	 * @param dsbSubscribe
-	 */
-	public void setDsbSubscribe(String dsbSubscribe) {
-		this.dsbSubscribe = dsbSubscribe;
-	}
-	
-	/**
 	 * Get the current <b>un</b>subscribe endpoint.
 	 */
 	public String getDsbUnsubscribe() {
 		return this.dsbUnsubscribe;
-	}
-	
-	/**
-	 * Overwrite the <b>un</b>subscribe endpoint.
-	 * 
-	 * @param dsbUnsubscribe
-	 */
-	public void setDsbUnsubscribe(String dsbUnSubscribe) {
-		this.dsbUnsubscribe = dsbUnSubscribe;
 	}
 	
 	private final NamespaceContext nc = new NamespaceContext() {
