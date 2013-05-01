@@ -19,7 +19,9 @@
 	
 	<modules>
 		<module>play-eventadapter-abstractrdfreceiver</module>
+		<module>play-eventadapter-abstractrdfreceiver-rest</module>
 		<module>play-eventadapter-abstractrdfsender</module>
+		<module>play-eventadapter-abstractrdfsender-rest</module>
 		<module>play-eventadapter-facebook</module>
 		<module>play-eventadapter-twitter</module>
 		<module>play-eventadapter-pachube</module>
