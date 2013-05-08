@@ -3,17 +3,21 @@ package eu.play_project.play_eventadapter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
 import org.event_processing.events.types.Event;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.ontoware.rdf2go.model.Model;
 import org.w3c.dom.Element;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
 
@@ -23,11 +27,12 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
 public class AbstractSenderRest {
 	
 	static{
-		client = Client.create();
+		cBuilder = new JerseyClientBuilder();
 	}
+	/** global client builder*/
+	private static ClientBuilder cBuilder;
 	
-	/** global RESTful client*/
-	private static Client client;
+	private Client client = cBuilder.newClient();
 	
 	/** Default REST endpoint for notifications */
 	private String notifyEndpoint = Constants.getProperties().getProperty(
@@ -88,23 +93,27 @@ public class AbstractSenderRest {
 	public void notify(String notifPayload, QName topicUsed) {
 		
 		// TODO ningyuan
-		MultivaluedMap data = new MultivaluedMapImpl();
+		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
 		// what is topicUsed
 		data.add("resource", eu.play_project.play_commons.constants.Stream.FacebookStatusFeed.getTopicUri()+"#stream");
 		data.add("message", notifPayload);
-			//System.out.println("Endpoint: "+notifyEndpoint);
-			//System.out.println("Topic: "+eu.play_project.play_commons.constants.Stream.FacebookStatusFeed.getTopicUri()+"#stream");
-		WebResource wr = client.resource(notifyEndpoint);
-			//System.out.println("Token: "+PLAY_PLATFORM_APITOKEN);
-		ClientResponse response = wr.header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
-		  .type("application/x-www-form-urlencoded")
-		  .post(ClientResponse.class, data);
+		// form entity of request
+		Entity<Form> entity = Entity.form(data);
 		
-		//TODO response state 200 201 202?
+		WebTarget wt = client.target(notifyEndpoint);
+		
+		Response response = wt.request()
+			  .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_TYPE)
+			  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
+			  .buildPost(entity)
+			  .invoke();
+		
+		client.close();
+		
 		if(response.getStatus() != 200){
 			logger.log(Level.SEVERE, "No event was notified because of response status "+response.getStatus());
 		}
-			System.out.println("Response status: "+response.getStatus());
+			System.out.println("Response status : "+response.getStatus());
 	}
 
 	/**
