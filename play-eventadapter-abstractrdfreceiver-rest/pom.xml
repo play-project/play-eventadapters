@@ -31,6 +31,18 @@
 			<groupId>org.ow2.play</groupId>
 			<artifactId>play-commons-eventtypes</artifactId>
 		</dependency>
+		<!-- Jersey RESTful Client Dependency -->
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>2.0-rc1</version>
+		</dependency>
+		<!-- Json liberay -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>

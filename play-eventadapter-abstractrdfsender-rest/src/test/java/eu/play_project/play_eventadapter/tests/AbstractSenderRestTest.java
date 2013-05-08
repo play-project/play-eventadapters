@@ -1,6 +1,6 @@
 package eu.play_project.play_eventadapter.tests;
 
-import static eu.play_project.play_commons.constants.Stream.SituationalEventStream;
+
 import static org.junit.Assert.*;
 
 import org.junit.Assert;
@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.play_project.play_commons.constants.Constants;
+import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_eventadapter.AbstractSenderRest;
 
 public class AbstractSenderRestTest {
@@ -16,7 +17,7 @@ public class AbstractSenderRestTest {
 
 	@Before
 	public void setup() {
-		eventSource = new AbstractSenderRest(SituationalEventStream.getTopicQName());
+		eventSource = new AbstractSenderRest(Stream.FacebookStatusFeed.getTopicUri());
 		// Only for unit testing:
 		eventSource.setNoNetworking(true);
 	}
@@ -31,7 +32,7 @@ public class AbstractSenderRestTest {
 	
 	@Test
 	public void testNotifyStringQName() {
-		eventSource.notify("{'foo' : 'bar'}", null);
+		eventSource.notify("{'foo' : 'bar'}");
 		assertTrue(true);
 	}
 

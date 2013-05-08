@@ -22,17 +22,16 @@ import org.w3c.dom.Element;
 
 
 import eu.play_project.play_commons.constants.Constants;
+import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
 
 public class AbstractSenderRest {
 	
-	static{
-		cBuilder = new JerseyClientBuilder();
-	}
-	/** global client builder*/
-	private static ClientBuilder cBuilder;
-	
-	private Client client = cBuilder.newClient();
+	/* XXX:Clients are heavy-weight objects that manage the client-side communication infrastructure.
+	 *  Initialization as well as disposal of a Client instance may be a rather expensive operation. 
+	 *  It is therefore advised to construct only a small number of Client instances in the application
+	 */
+	private ClientBuilder cBuilder = new JerseyClientBuilder();
 	
 	/** Default REST endpoint for notifications */
 	private String notifyEndpoint = Constants.getProperties().getProperty(
@@ -42,10 +41,10 @@ public class AbstractSenderRest {
 			"play.platform.api.token");
 
 	private final Logger logger = Logger.getAnonymousLogger();
-	private QName defaultTopic;
+	private String defaultTopic;
 	private Boolean online = true;
 	
-	public AbstractSenderRest(QName defaultTopic) {
+	public AbstractSenderRest(String defaultTopic) {
 		this.defaultTopic = defaultTopic;
 	}
 
@@ -59,7 +58,7 @@ public class AbstractSenderRest {
 	/**
 	 * Send an {@linkplain Event} to a specific topic.
 	 */
-	public void notify(Event event, QName topicUsed) {
+	public void notify(Event event, String topicUsed) {
 		notify(event.getModel(), topicUsed);
 	}
 
@@ -73,7 +72,7 @@ public class AbstractSenderRest {
 	/**
 	 * Send a {@linkplain Model} to a specific topic.
 	 */
-	public void notify(Model model, QName topicUsed) {
+	public void notify(Model model, String topicUsed) {
 		Element element = EventHelpers.serializeAsDom(model);
 
 		// TODO stuehmer
@@ -90,12 +89,13 @@ public class AbstractSenderRest {
 	/**
 	 * Send a {@linkplain String} payload to a specific topic.
 	 */
-	public void notify(String notifPayload, QName topicUsed) {
+	public void notify(String notifPayload, String topicUsed) {
 		
-		// TODO ningyuan
+		// XXX performance problem with new client
+		Client client = cBuilder.newClient();
+		
 		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
-		// what is topicUsed
-		data.add("resource", eu.play_project.play_commons.constants.Stream.FacebookStatusFeed.getTopicUri()+"#stream");
+		data.add("resource", topicUsed + Stream.STREAM_ID_SUFFIX);
 		data.add("message", notifPayload);
 		// form entity of request
 		Entity<Form> entity = Entity.form(data);
@@ -113,7 +113,8 @@ public class AbstractSenderRest {
 		if(response.getStatus() != 200){
 			logger.log(Level.SEVERE, "No event was notified because of response status "+response.getStatus());
 		}
-			System.out.println("Response status : "+response.getStatus());
+		logger.fine("Response status : "+response.getStatus());
+		response.close();
 	}
 
 	/**
@@ -138,7 +139,7 @@ public class AbstractSenderRest {
 	 * 
 	 * @param defaultTopic
 	 */
-	public void setDefaultTopic(QName defaultTopic) {
+	public void setDefaultTopic(String defaultTopic) {
 		if (defaultTopic == null) {
 			throw new NullPointerException("defaultTopic may not be null");
 		}
