@@ -16,10 +16,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.namespace.QName;
 
 import org.event_processing.events.types.Event;
-import org.event_processing.events.types.Notify;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.ontoware.rdf2go.model.Model;
 import org.w3c.dom.Node;
@@ -48,10 +46,10 @@ public abstract class AbstractReceiverRest {
 	private final Map<String, String> subscriptions = Collections.synchronizedMap(new HashMap<String, String>());
 	
 	/* XXX:Clients are heavy-weight objects that manage the client-side communication infrastructure.
-	 *  Initialization as well as disposal of a Client instance may be a rather expensive operation. 
+	 *  Initialization as well as disposal of a Client instance may be a rather expensive operation.
 	 *  It is therefore advised to construct only a small number of Client instances in the application
 	 */
-	private ClientBuilder cBuilder = new JerseyClientBuilder();
+	private final ClientBuilder cBuilder = new JerseyClientBuilder();
 	
 	/**
 	 * Create an {@linkplain AbstractReceiverRest} using the specified PLAY DSB endpoint
@@ -234,18 +232,6 @@ public abstract class AbstractReceiverRest {
 		// TODO stuehmer
 	}
 	
-	/**
-	 * Retrieve RDF from the contents of an XML message.
-	 * 
-	 * @param notify
-	 * @return
-	 * @throws NoRdfEventException if there was no RDF to parse in the input
-	 */
-	public Model parseRdf(Notify notify) throws NoRdfEventException {
-		throw new UnsupportedOperationException("not implemented yet");
-		// TODO stuehmer
-	}
-		
 	/**
 	 * Retrieve RDF from the contents of an XML message.
 	 * 
