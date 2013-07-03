@@ -17,9 +17,11 @@ import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdf2go.model.Syntax;
 import org.ontoware.rdf2go.model.node.Variable;
 import org.ontoware.rdf2go.model.node.impl.URIImpl;
+import org.ontoware.rdf2go.util.ModelUtils;
 import org.ontoware.rdf2go.vocabulary.RDF;
 
 import eu.play_project.platformservices.eventvalidation.InvalidEventException;
+import eu.play_project.platformservices.eventvalidation.Validator;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_eventadapter.AbstractSender;
 import eu.play_project.play_eventadapter_pachube.PachubeServlet;
@@ -58,9 +60,9 @@ public class PachubeEventParseTest {
 		assertTrue("Property to be lifted.", m.contains(Variable.ANY, new URIImpl("http://www.linkedopenservices.org/ns/temp-json#value_description"), Variable.ANY));
 
 		// Validate the resulting RDF
-		//Validator v = new Validator().checkModel(m.getContextURI(), m);
-		//assertTrue("The created event did not pass the PLAY sanity checks for events.", v.isValid());
-		// FIXME stuehmer: Pachube events must be skolemized to pass this test
+		ModelUtils.deanonymize(m);
+		Validator v = new Validator().checkModel(m.getContextURI(), m);
+		assertTrue("The created event did not pass the PLAY sanity checks for events.", v.isValid());
 		
 		
 		// Notify this event (but actual networking was turned off above)
