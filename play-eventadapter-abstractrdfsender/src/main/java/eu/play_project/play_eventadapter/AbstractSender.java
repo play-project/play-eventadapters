@@ -9,6 +9,11 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.model.Model;
 import org.petalslink.dsb.notification.client.http.HTTPNotificationConsumerClient;
@@ -140,7 +145,7 @@ public class AbstractSender {
 	public void notify(Document notifPayload) {
 		notify(notifPayload, this.defaultTopic);
 	}
-
+	
 	/**
 	 * Send a {@linkplain Document} payload to a specific topic.
 	 */
@@ -165,6 +170,31 @@ public class AbstractSender {
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "No event was notified because of: ", e);
 		}
+	}
+
+	/**
+	 * Send the given notification message to the DSB as-is (raw). A SOAP
+	 * envelope must be included plus a properly formatted Notify message and
+	 * payload. Use with caution.
+	 */
+	public void notifyRaw(String notif) {
+		try {
+			HttpPost httppost = new HttpPost(dsbNotify);
+			HttpClient httpclient = new DefaultHttpClient();
+			
+	        httppost.setEntity(new StringEntity(notif));
+	        // Execute HTTP Post Request
+	        HttpResponse response = httpclient.execute(httppost);
+	        int statusCode = response.getStatusLine().getStatusCode();
+	        if (statusCode == 200 || statusCode == 202) {
+	        }
+	        else {
+		    	logger.log(Level.SEVERE, "No event was notified because of: " + response.toString());
+	        }
+		}
+	    catch (Exception e) {
+	    	logger.log(Level.SEVERE, "No event was notified because of: ", e);
+	    }
 	}
 
 	/**
