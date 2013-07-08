@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.PachubeEvent;
 import org.event_processing.events.types.UcTelcoClic2Call;
@@ -15,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdfreactor.runtime.ReactorResult;
+import org.petalslink.dsb.notification.commons.NotificationException;
 
 import eu.play_project.play_eventadapter.AbstractReceiver;
 import eu.play_project.play_eventadapter.NoRdfEventException;
@@ -158,6 +161,19 @@ public class AbstractReceiverTest {
 		 */
 		UcTelcoGeoLocation event = l.get(0);
 		assertNotNull("Checking for an event location", event.getLocation());
+	}
+	
+	/**
+	 * A manual test, not to be executed automatically because it has side
+	 * effects on the remote server.
+	 */
+	public static void main(String[] args) throws NotificationException {
+		AbstractReceiver consumer = new AbstractReceiver() {};
+
+		QName testTopic = new QName("http://example.org/", "NonexistentTopic", "n");
+		consumer.subscribe(testTopic, "http://leonberger.fzi.de:8085/Notify");
+		
+		consumer.unsubscribeAll();
 	}
 
 }
