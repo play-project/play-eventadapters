@@ -39,8 +39,12 @@ public abstract class AbstractReceiverRest {
 	/** Default REST endpoint for notifications */
 	private final String subscribeEndpoint;
 	
-	private final String PLAY_PLATFORM_APITOKEN = Constants.getProperties("play-eventadapter.properties").getProperty(
+	private String playPlatformApiToken = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
+
+	public void setApiToken(String token) {
+		playPlatformApiToken = token;
+	}
 
 	private final Logger logger = Logger.getAnonymousLogger();
 	private final Map<String, String> subscriptions = Collections.synchronizedMap(new HashMap<String, String>());
@@ -97,7 +101,7 @@ public abstract class AbstractReceiverRest {
 		
 		Response response = wt.request(MediaType.APPLICATION_JSON_TYPE)
 			  .header("Content-Type", MediaType.APPLICATION_JSON_TYPE)
-			  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
+			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildPost(requestEntity)
 			  .invoke();
 
@@ -106,7 +110,7 @@ public abstract class AbstractReceiverRest {
 		logger.fine("Subscribe response status : "+response.getStatus());
 			//System.out.println("Subscribe response status: "+response.getStatus());
 		if(response.getStatus() != 201){
-			logger.log(Level.SEVERE, "Subscription failed. "+response.getStatus());
+			logger.log(Level.SEVERE, "Subscription failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			String responseEntity = response.readEntity(String.class);
@@ -133,7 +137,7 @@ public abstract class AbstractReceiverRest {
 		WebTarget wt = client.target(subscribeEndpoint+"/"+subscriptionId);
 		
 		Response response = wt.request()
-			  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
+			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildDelete()
 			  .invoke();
 
@@ -142,7 +146,7 @@ public abstract class AbstractReceiverRest {
 		logger.fine("Unsubscribe response status : "+response.getStatus());
 			//System.out.println("Unsubscribe response status: "+response.getStatus());
 		if(response.getStatus() != 204){
-			logger.log(Level.SEVERE, "Unsubscription failed. "+response.getStatus());
+			logger.log(Level.SEVERE, "Unsubscription failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			subscriptions.remove(subscriptionId);
@@ -192,7 +196,7 @@ public abstract class AbstractReceiverRest {
 		WebTarget wt = client.target(subscribeEndpoint);
 		
 		Response response = wt.request(MediaType.APPLICATION_JSON_TYPE)
-			  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
+			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildGet()
 			  .invoke();
 
@@ -201,7 +205,7 @@ public abstract class AbstractReceiverRest {
 		logger.fine("Get topics response status : "+response.getStatus());
 			//System.out.println("Get topics response status: "+response.getStatus());
 		if(response.getStatus() != 200){
-			logger.log(Level.SEVERE, "Get topics failed. "+response.getStatus());
+			logger.log(Level.SEVERE, "Get topics failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			String responseEntity = response.readEntity(String.class);

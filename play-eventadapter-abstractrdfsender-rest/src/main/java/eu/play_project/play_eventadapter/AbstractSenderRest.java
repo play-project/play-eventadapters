@@ -111,7 +111,7 @@ public class AbstractSenderRest {
 		client.close();
 		
 		if(response.getStatus() != 200){
-			logger.log(Level.SEVERE, "No event was notified because of response status "+response.getStatus());
+			logger.log(Level.SEVERE, "No event was notified. HTTP Status Code: "+response.getStatus());
 		}
 		logger.fine("Response status : "+response.getStatus());
 		response.close();

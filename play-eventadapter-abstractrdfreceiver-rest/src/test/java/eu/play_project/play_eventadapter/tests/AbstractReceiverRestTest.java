@@ -15,7 +15,7 @@ import eu.play_project.play_eventadapter.AbstractReceiverRest;
 public class AbstractReceiverRestTest {
 	
 	private AbstractReceiverRest eventConsumer;
-
+	
 	@Before
 	public void setup() {
 		eventConsumer = new AbstractReceiverRest(){}; 
