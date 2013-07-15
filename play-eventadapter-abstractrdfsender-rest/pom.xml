@@ -52,14 +52,4 @@
 		</dependency>
 	</dependencies>
 	
-	<build>
-		<resources>
-			<!-- Enable filtering to add passwords from your settings.xml :stuehmer  -->
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>	
-	</build>
-	
 </project>
