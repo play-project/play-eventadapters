@@ -1,5 +1,7 @@
 package eu.play_project.play_eventadapter;
 
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTAX;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,27 +17,18 @@ import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
 import org.event_processing.events.types.Event;
-import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.ontoware.rdf2go.model.Model;
-import org.w3c.dom.Element;
-
-
+import org.ontoware.rdf2go.model.Syntax;
 
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
-import eu.play_project.play_commons.eventtypes.EventHelpers;
 
 public class AbstractSenderRest {
-	
-	/* XXX:Clients are heavy-weight objects that manage the client-side communication infrastructure.
-	 *  Initialization as well as disposal of a Client instance may be a rather expensive operation. 
-	 *  It is therefore advised to construct only a small number of Client instances in the application
-	 */
-	private ClientBuilder cBuilder = new JerseyClientBuilder();
 	
 	/** Default REST endpoint for notifications */
 	private String notifyEndpoint = Constants.getProperties().getProperty(
 			"play.platform.endpoint") + "publish";
+	
 	/** Credentials for publishing events to PLAY Platform */
 	private final String PLAY_PLATFORM_APITOKEN = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
@@ -43,11 +36,19 @@ public class AbstractSenderRest {
 	private final Logger logger = Logger.getAnonymousLogger();
 	private String defaultTopic;
 	private Boolean online = true;
+	private final Client client;
+	private final WebTarget webTarget;
 	
 	public AbstractSenderRest(String defaultTopic) {
 		this.defaultTopic = defaultTopic;
+		client = ClientBuilder.newClient();
+		webTarget = client.target(notifyEndpoint);
 	}
 
+	public AbstractSenderRest(QName defaultTopic) {
+		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart());
+	}
+	
 	/**
 	 * Send an {@linkplain Event} to the default Topic.
 	 */
@@ -73,10 +74,7 @@ public class AbstractSenderRest {
 	 * Send a {@linkplain Model} to a specific topic.
 	 */
 	public void notify(Model model, String topicUsed) {
-		Element element = EventHelpers.serializeAsDom(model);
-
-		// TODO stuehmer
-
+		notify(model.serialize(Syntax.forMimeType(WSN_MSG_DEFAULT_SYNTAX)), topicUsed);
 	}
 
 	/**
@@ -91,30 +89,25 @@ public class AbstractSenderRest {
 	 */
 	public void notify(String notifPayload, String topicUsed) {
 		
-		// XXX performance problem with new client
-		Client client = cBuilder.newClient();
-		
 		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
 		data.add("resource", topicUsed + Stream.STREAM_ID_SUFFIX);
 		data.add("message", notifPayload);
 		// form entity of request
 		Entity<Form> entity = Entity.form(data);
 		
-		WebTarget wt = client.target(notifyEndpoint);
-		
-		Response response = wt.request()
-			  .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-			  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
-			  .buildPost(entity)
-			  .invoke();
-		
-		client.close();
-		
-		if(response.getStatus() != 200){
-			logger.log(Level.SEVERE, "No event was notified. HTTP Status Code: "+response.getStatus());
+		if (online) {
+			Response response = webTarget.request()
+				  .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_TYPE)
+				  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
+				  .buildPost(entity)
+				  .invoke();
+			
+			if(response.getStatus() != 200){
+				logger.log(Level.SEVERE, "No event was notified because of response status "+response.getStatus() + " " + response.getStatusInfo());
+			}
+			logger.fine("Response status: "+response.getStatus());
+			response.close();
 		}
-		logger.fine("Response status : "+response.getStatus());
-		response.close();
 	}
 
 	/**
@@ -151,5 +144,10 @@ public class AbstractSenderRest {
 	 */
 	public void setNoNetworking(Boolean offline) {
 		this.online = !offline;
+	}
+	
+	@Override
+	public void finalize() {
+		client.close();
 	}
 }

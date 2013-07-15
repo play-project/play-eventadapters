@@ -16,10 +16,10 @@ import twitter4j.Status;
 import eu.play_project.play_commons.constants.Source;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
-import eu.play_project.play_eventadapter.AbstractSender;
+import eu.play_project.play_eventadapter.AbstractSenderRest;
 
 
-public class TwitterPublisher extends AbstractSender {
+public class TwitterPublisher extends AbstractSenderRest {
 
 	public TwitterPublisher(QName defaultTopic) {
 		super(defaultTopic);
@@ -31,7 +31,7 @@ public class TwitterPublisher extends AbstractSender {
 	}
 	
 	public Event createEvent(Status status)
-	{	
+	{
 		// Create an event ID used in RDF context and RDF subject
 		String eventId = EventHelpers.createRandomEventId("twitter");
 
@@ -45,16 +45,16 @@ public class TwitterPublisher extends AbstractSender {
 		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(status.getCreatedAt());
-		if (status.getURLEntities() != null) 
+		if (status.getURLEntities() != null)
 		{
-			for(int i = 0; i < status.getURLEntities().length; i++) 
+			for(int i = 0; i < status.getURLEntities().length; i++)
 				event.addLinksto(new URIImpl(status.getURLEntities()[i].getURL().toString()));
 		}
-		if (status.getHashtagEntities() != null) 
+		if (status.getHashtagEntities() != null)
 		{
 			for(int i = 0; i < status.getHashtagEntities().length; i++) event.addTwitterHashTag(status.getHashtagEntities()[i].getText().toString());
 		}
-		if (status.getUserMentionEntities() != null) 
+		if (status.getUserMentionEntities() != null)
 		{
 			for(int i = 0; i < status.getUserMentionEntities().length; i++) event.addTwitterUserMention(status.getUserMentionEntities()[i].getScreenName().toString());
 		}

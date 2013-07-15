@@ -31,7 +31,7 @@ public class TwitterPublisherTest {
 	
 	@Before
 	public void setup() {
-		this.twitterPublisher = new TwitterPublisher(Stream.TwitterFeed.getTopicQName());
+		this.twitterPublisher = new TwitterPublisher(Stream.PersonalStream1.getTopicQName());
 		// Only for testing:
 		this.twitterPublisher.setNoNetworking(true);
 	}
