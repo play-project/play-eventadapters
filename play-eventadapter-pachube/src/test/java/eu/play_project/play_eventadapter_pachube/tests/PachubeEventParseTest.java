@@ -23,12 +23,12 @@ import org.ontoware.rdf2go.vocabulary.RDF;
 import eu.play_project.platformservices.eventvalidation.InvalidEventException;
 import eu.play_project.platformservices.eventvalidation.Validator;
 import eu.play_project.play_commons.constants.Stream;
-import eu.play_project.play_eventadapter.AbstractSender;
+import eu.play_project.play_eventadapter.AbstractSenderRest;
 import eu.play_project.play_eventadapter_pachube.PachubeServlet;
 
 public class PachubeEventParseTest {
 
-	private static AbstractSender eventSender = new AbstractSender(Stream.PachubeFeed.getTopicQName()) {};
+	private static AbstractSenderRest eventSender = new AbstractSenderRest(Stream.PachubeFeed.getTopicQName()) {};
 	
 	@Before
 	public void before() throws ServletException {

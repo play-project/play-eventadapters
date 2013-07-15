@@ -41,7 +41,7 @@ import com.pachube.factory.PachubeFactory;
 import eu.play_project.play_commons.constants.Source;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
-import eu.play_project.play_eventadapter.AbstractSender;
+import eu.play_project.play_eventadapter.AbstractSenderRest;
 
 /**
  * A servlet to process JSON Webhook calls from Pachube. The JSON data is
@@ -58,7 +58,7 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 
 	private static final long serialVersionUID = 1L;
 	
-	private static AbstractSender eventSender = new AbstractSender(Stream.PachubeFeed.getTopicQName()) {}; 
+	private static AbstractSenderRest eventSender = new AbstractSenderRest(Stream.PachubeFeed.getTopicQName()) {};
 	
 	/*
 	 * ============== Begin Testing ================================
@@ -162,7 +162,7 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 		 * ============== End Testing ================================
 		 */
 		
-        return event.getModel();     
+        return event.getModel();
   	}
     
     private static void unsubscribeFromPachube() {
@@ -220,7 +220,7 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 //		} catch (RepositoryException e) {
 //			Logger.getAnonymousLogger().log(Level.WARNING,
 //					"Problem while initializing Sesame storage.", e);
-//		}		
+//		}
 		/*
 		 * ============== End Testing ================================
 		 */
@@ -261,7 +261,7 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 						properties.getProperty("pachube.v2.apiKey"), APIVersion.V2);
 			}
 			initSesame();
-			/* 
+			/*
 			 * We are doing this here and not in init() because we need subscriptions
 			 * before the servlet is invoked (and thus init would be called):
 			 */
