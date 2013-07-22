@@ -10,11 +10,11 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>play-eventadapter-pachube</artifactId>
+	<artifactId>play-eventadapter-xively</artifactId>
 	<packaging>war</packaging>
 
-	<name>play-eventadapter-pachube</name>
-	<description>A PLAY event adapter to receive real-time information from the Cosm (formerly Pachube) service.</description>
+	<name>play-eventadapter-xively</name>
+	<description>A PLAY event adapter to receive real-time information from the Xively service (formerly Cosm or Pachube).</description>
 
 	<repositories>
 		<!-- For JSON2RDF -->
@@ -52,14 +52,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.pachube</groupId>
-			<artifactId>com.pachube.all.in.one.bundle</artifactId>
+			<groupId>com.xively.client</groupId>
+			<artifactId>xively-java-client</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
-		<!-- 
-			<groupId>com.google</groupId>
-			<artifactId>jpachube</artifactId>
-			<version>1.0</version>
-		-->
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -95,6 +90,11 @@
 	        <artifactId>javax.servlet-api</artifactId>
 	        <version>3.0.1</version>
 	        <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.ipojo</artifactId>
+			<version>1.8.0</version>
 		</dependency>
 	</dependencies>
 

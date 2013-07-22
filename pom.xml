@@ -24,7 +24,7 @@
 		<module>play-eventadapter-abstractrdfsender-rest</module>
 		<module>play-eventadapter-facebook</module>
 		<module>play-eventadapter-twitter</module>
-		<module>play-eventadapter-pachube</module>
+		<module>play-eventadapter-xively</module>
 		<module>play-eventadapter-ldstreams</module>
 	</modules>
 	

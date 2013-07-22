@@ -4,6 +4,7 @@ import static eu.play_project.play_commons.constants.Event.EVENT_ID_SUFFIX;
 import static eu.play_project.play_commons.constants.Namespace.EVENTS;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -31,12 +32,7 @@ import com.google.gson.JsonParser;
 import com.hp.hpl.jena.update.GraphStore;
 import com.hp.hpl.jena.update.GraphStoreFactory;
 import com.hp.hpl.jena.update.UpdateAction;
-import com.pachube.api.APIVersion;
-import com.pachube.api.Pachube;
-import com.pachube.api.Trigger;
-import com.pachube.api.TriggerType;
-import com.pachube.commons.impl.TriggerImpl;
-import com.pachube.factory.PachubeFactory;
+import com.xively.client.XivelyService;
 
 import eu.play_project.play_commons.constants.Source;
 import eu.play_project.play_commons.constants.Stream;
@@ -69,14 +65,14 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 	 */
 
 	
-    public static String pachubeAdapterTriggerUrl = "http://demo.play-project.eu:8080/play-eventadapter-pachube/PachubeServlet";
+    public static String pachubeAdapterTriggerUrl = "http://demo.play-project.eu:8080/play-eventadapter-xively/PachubeServlet";
     // TODO stuehmer: externalize these URIs (also for other servlets like Facebook)
     
     public static List<Integer> feedIds = Arrays.asList(18936, 9349, 8660, 8563, 10094);
     
     public static String liftingQuery = new Scanner(PachubeServlet.class.getClassLoader().getResourceAsStream("liftingQueryPachubeUpdate.ru")).useDelimiter("\\A").next();
     
-	private static Pachube p;
+	private static XivelyService x;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -109,7 +105,7 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 
     public static Model createEventModel(String jsonText) {
         
-		String eventId = EVENTS.getUri() + "pachube-" + UUID.randomUUID();
+		String eventId = EVENTS.getUri() + "xively_" + UUID.randomUUID();
 		
 		// Create event with RDFReactor
 		PachubeEvent event = new PachubeEvent(
@@ -168,13 +164,8 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
     private static void unsubscribeFromPachube() {
 		try {
 			URL url = new URL(pachubeAdapterTriggerUrl);
-			for (Trigger t : Arrays.asList(p.getTriggers())) {
-				if (url.equals(t.getUrl())) {
-					p.deleteTrigger(t.getID());
-				}
-			}
-		} catch (Exception e) {
-			Logger.getAnonymousLogger().log(Level.WARNING, "Unsubscribing from old Pachube feeds failed. ", e);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 		}
     }
     
@@ -183,21 +174,8 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 		 *  Loop through a list of feeds to subscribe to Pachube:
 		 */
 		for (int feedId : feedIds) {
-			try {
-				
-				Trigger t = new TriggerImpl();
-				t.setEnv_id(feedId);
-				t.setStream_id(0);
 
-				t.setType(TriggerType.CHANGE);
-
-				t.setUrl(new URL(pachubeAdapterTriggerUrl));
-
-				Logger.getAnonymousLogger().info("Subscribing to Pachube at feed Id " + feedId);
-				p.createTrigger(t);
-			} catch (Exception e) {
-				Logger.getAnonymousLogger().log(Level.WARNING, "Subscribing to Pachube feed " + feedId + " failed. ", e);
-			}
+		
 		}
     }
     
@@ -256,9 +234,8 @@ public class PachubeServlet extends HttpServlet implements ServletContextListene
 			properties.load(this.getClass().getClassLoader().getResourceAsStream("pachube.properties"));
 
 		
-			if (p == null) {
-				p = (new PachubeFactory()).createPachube(
-						properties.getProperty("pachube.v2.apiKey"), APIVersion.V2);
+			if (x == null) {
+				x = XivelyService.instance();
 			}
 			initSesame();
 			/*
