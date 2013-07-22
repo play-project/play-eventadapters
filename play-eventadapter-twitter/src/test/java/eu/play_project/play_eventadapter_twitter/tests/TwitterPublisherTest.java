@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.Event;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.ontoware.rdf2go.model.Syntax;
@@ -31,9 +32,15 @@ public class TwitterPublisherTest {
 	
 	@Before
 	public void setup() {
-		this.twitterPublisher = new TwitterPublisher(Stream.PersonalStream1.getTopicQName());
+		this.twitterPublisher = new TwitterPublisher(Stream.TwitterFeed.getTopicQName());
+		this.twitterPublisher.init();
 		// Only for testing:
 		this.twitterPublisher.setNoNetworking(true);
+	}
+	
+	@After
+	public void destroy() {
+		this.twitterPublisher.destroy();
 	}
 	
 	@Test

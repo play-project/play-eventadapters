@@ -1,7 +1,7 @@
 package eu.play_project.play_eventadapter;
 
-import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTAX;
-
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,10 +18,10 @@ import javax.xml.namespace.QName;
 
 import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.model.Model;
-import org.ontoware.rdf2go.model.Syntax;
 
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
+import eu.play_project.play_commons.eventtypes.EventHelpers;
 
 public class AbstractSenderRest {
 	
@@ -74,7 +74,13 @@ public class AbstractSenderRest {
 	 * Send a {@linkplain Model} to a specific topic.
 	 */
 	public void notify(Model model, String topicUsed) {
-		notify(model.serialize(Syntax.forMimeType(WSN_MSG_DEFAULT_SYNTAX)), topicUsed);
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		EventHelpers.write(stream, model);
+		try {
+			notify(stream.toString("UTF-8"), topicUsed);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -92,7 +98,6 @@ public class AbstractSenderRest {
 		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
 		data.add("resource", topicUsed + Stream.STREAM_ID_SUFFIX);
 		data.add("message", notifPayload);
-		// form entity of request
 		Entity<Form> entity = Entity.form(data);
 		
 		if (online) {
@@ -105,7 +110,10 @@ public class AbstractSenderRest {
 			if(response.getStatus() != 200){
 				logger.log(Level.SEVERE, "No event was notified because of response status "+response.getStatus() + " " + response.getStatusInfo());
 			}
-			logger.fine("Response status: "+response.getStatus());
+			else {
+				logger.fine("Response status: "+response.getStatus());
+			}
+			
 			response.close();
 		}
 	}

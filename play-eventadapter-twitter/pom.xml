@@ -19,12 +19,12 @@
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-core</artifactId>
-			<version>2.2.6</version>
+			<version>3.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-stream</artifactId>
-			<version>2.2.6</version>
+			<version>3.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.play</groupId>
@@ -34,6 +34,12 @@
 			<groupId>org.ow2.play</groupId>
 			<artifactId>play-eventadapter-abstractrdfsender-rest</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>rdf2go.impl.jena</artifactId>
+					<groupId>org.semweb4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -46,6 +52,11 @@
 			<artifactId>play-platformservices-eventvalidation</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.semweb4j</groupId>
+			<artifactId>rdf2go.impl.sesame</artifactId>
+			<version>4.8.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

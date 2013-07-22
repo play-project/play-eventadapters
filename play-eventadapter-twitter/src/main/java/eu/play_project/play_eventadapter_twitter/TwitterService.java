@@ -21,6 +21,7 @@ public class TwitterService extends HttpServlet implements ServletContextListene
 
 	private static final long serialVersionUID = 1L;
 	private static TwitterBackend tb;
+	private TwitterPublisher twitterPublisher;
 	
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -59,8 +60,9 @@ public class TwitterService extends HttpServlet implements ServletContextListene
 		tc.setKeywords(TwitterProperties.getKeywords());
 		tc.setLocationRestriction(TwitterProperties.getLocations());
 		tb = new TwitterBackend();
-		tb.startStream(tc,
-				new TwitterPublisher(Stream.TwitterFeed.getTopicQName()));
+		twitterPublisher = new TwitterPublisher(Stream.TwitterFeed.getTopicQName());
+		twitterPublisher.init();
+		tb.startStream(tc, twitterPublisher);
 	}
 
 	@Override
@@ -77,6 +79,7 @@ public class TwitterService extends HttpServlet implements ServletContextListene
 	public void contextDestroyed(ServletContextEvent sce) {
 		Logger.getAnonymousLogger().info("Stopping Twitter streams.");
 		tb.stopStreams();
+		twitterPublisher.destroy();
 	}
 
 }

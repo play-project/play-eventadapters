@@ -46,8 +46,12 @@ static Properties properties;
 	
 	public static boolean hasLocations()
 	{
-		if (properties.getProperty("LOCATIONS").equals("")) return false;
-		else return true;
+		if (properties.getProperty("LOCATIONS") != null && !properties.getProperty("LOCATIONS").equals("")) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	public static boolean hasKeywords()
 	{
@@ -56,7 +60,7 @@ static Properties properties;
 	}
 	public static double[][] getLocations()
 	{
-		if (!properties.getProperty("LOCATIONS").equals(""))
+		if (hasLocations())
 		{
 			  String[] a = properties.getProperty("LOCATIONS").split(";");
 			  double[][] res = new double[a.length][2];
