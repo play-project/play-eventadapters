@@ -27,6 +27,7 @@ To send events to PLAY using the RESTful event adapters a PLAY API Token is need
 
 * You can configure it by editing the properties file on the classpath, usually `/src/main/resources/play-eventadapter.properties`
 * Alternatively Maven will insert your API Token during building if you set the token in your `$HOME/.m2/settings.xml` `<properties>` as follows:
+
 ```xml
 	<settings>
 		...
