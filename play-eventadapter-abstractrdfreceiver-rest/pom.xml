@@ -43,6 +43,11 @@
 			<artifactId>gson</artifactId>
 			<version>2.2.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.ow2.petals.dsb</groupId>
+			<artifactId>dsb-notification-commons</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -1,9 +1,19 @@
 package eu.play_project.play_eventadapter;
 
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTAX;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_ELEMENT;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_GRAPH_ATTRIBUTE;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_NS;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_SYNTAX_ATTRIBUTE;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,16 +26,29 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.event_processing.events.types.Event;
 import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.ontoware.rdf2go.exception.ModelRuntimeException;
 import org.ontoware.rdf2go.model.Model;
+import org.ontoware.rdf2go.model.ModelSet;
+import org.ontoware.rdf2go.model.Syntax;
 import org.w3c.dom.Node;
 
+import com.ebmwebsourcing.easycommons.xml.XMLHelper;
+import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.NotificationMessageHolderType;
+import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Notify;
 import com.google.gson.Gson;
 
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
+import eu.play_project.play_commons.eventtypes.EventHelpers;
 
 /**
  * A an abstract event consumer which can subscribe to PLAY RDF events and deal
@@ -231,9 +254,27 @@ public abstract class AbstractReceiverRest {
 	 * @throws NoRdfEventException if there was no RDF to parse in the input
 	 */
 	public Model parseRdf(String stringNotify) throws NoRdfEventException {
-		
-		throw new UnsupportedOperationException("not implemented yet");
-		// TODO stuehmer
+		try {
+			return parseRdf(XMLHelper.createDocumentFromString(stringNotify));
+		} catch (Exception e) {
+			throw new NoRdfEventException("Exception while reading RDF event from XML message.", e);
+		}
+	}
+
+	/**
+	 * Retrieve RDF from the contents of an XML message.
+	 * 
+	 * @param notify
+	 * @return
+	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	 */
+	public Model parseRdf(Notify notify) throws NoRdfEventException {
+		for (NotificationMessageHolderType holder : notify.getNotificationMessage()) {
+			// we support only one event message per notify envelope, return immediately:
+			return parseRdf(holder.getMessage().getAny());
+		}
+		// If we reach this point past the loop, fail:
+		throw new NoRdfEventException("An event was receieved without a <wsnt:Message> element.");
 	}
 	
 	/**
@@ -245,9 +286,83 @@ public abstract class AbstractReceiverRest {
 	 */
 	public Model parseRdf(Node xmlNotify) throws NoRdfEventException {
 
-		throw new UnsupportedOperationException("not implemented yet");
-		// TODO stuehmer
+		// The ModelSet to hold the RDF data:
+		ModelSet rdf = EventHelpers.createEmptyModelSet();
+		// The RDF syntax (serialization format):
+		String syntax;
+		
+		//Evaluate XPath against Document itself
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		xPath.setNamespaceContext(nc);
+		Node playMsgElement = null;
+		
+		try {
+			// Select the first [1] WSN_MSG_ELEMENT in document order:
+			playMsgElement = (Node)xPath.evaluate("(//" + WSN_MSG_ELEMENT.getPrefix() + ":" + WSN_MSG_ELEMENT.getLocalPart() + ")[1]",
+					xmlNotify, XPathConstants.NODE);
+		} catch (XPathExpressionException e) {
+			throw new NoRdfEventException("An event was receieved with no or wrong content element: " + WSN_MSG_ELEMENT + ". " + e.getMessage());
+		}
 
+		String playMsgContent = (playMsgElement != null && playMsgElement.getTextContent() != null) ? playMsgElement.getTextContent() : "";
+		if (playMsgContent.isEmpty()) {
+			throw new NoRdfEventException("An event was receieved with no or empty content element: " + WSN_MSG_ELEMENT);
+		}
+		Reader r = new StringReader(playMsgContent);
+
+		
+		/*
+		 * Find the RDF syntax
+		 */
+		Node syntaxAttribute = playMsgElement.getAttributes().getNamedItemNS(WSN_MSG_NS, WSN_MSG_SYNTAX_ATTRIBUTE);
+		if (syntaxAttribute != null && !syntaxAttribute.getTextContent().isEmpty()) {
+			syntax = syntaxAttribute.getTextContent();
+		}
+		else {
+			syntax = WSN_MSG_DEFAULT_SYNTAX;
+		}
+		logger.fine("Parsing an incoming event with syntax '" + syntax + "'");
+		
+		try {
+			rdf.readFrom(r, Syntax.forMimeType(syntax));
+		} catch (ModelRuntimeException e) {
+			throw new NoRdfEventException("An exception occured while parsing RDF of an incoming event.", e);
+		} catch (IOException e) {
+			throw new NoRdfEventException("An exception occured while parsing RDF of an incoming event.", e);
+		}
+		
+		/*
+		 * A hack to select the event graph in the rare case when more than one
+		 * graph were returned:
+		 */
+		Model model = rdf.getDefaultModel();
+		long max = model.size();
+		Iterator<Model> it = rdf.getModels();
+		// For now, select the largest model
+		while (it.hasNext()) {
+			Model temp = it.next();
+			long tempSize = temp.size();
+			if (tempSize > max) {
+				max = tempSize;
+				model = temp;
+			}
+		}
+		
+		if (max == 0) {
+			throw new NoRdfEventException("The RDF event had no attributes, or other features (zero quads).");
+		}
+
+		// If there is no RDF context try to get it from the XML message
+		if (model.getContextURI() == null) {
+			Node graphAttribute = playMsgElement.getAttributes().getNamedItem(WSN_MSG_GRAPH_ATTRIBUTE);
+			if (graphAttribute != null && !graphAttribute.getTextContent().isEmpty()) {
+				Model temp = EventHelpers.createEmptyModel(graphAttribute.getTextContent());
+				temp.addModel(model);
+				model = temp;
+			}
+
+		}
+		return EventHelpers.addNamespaces(model);
 	}
 	
 	/**
@@ -285,4 +400,30 @@ public abstract class AbstractReceiverRest {
 		return this.subscribeEndpoint;
 	}
 	
+	private final NamespaceContext nc = new NamespaceContext() {
+		@Override
+		public String getNamespaceURI(String prefix) {
+			if (prefix == null)
+				throw new NullPointerException("Null prefix");
+			else if (WSN_MSG_ELEMENT.getPrefix().equals(prefix))
+				return WSN_MSG_ELEMENT.getNamespaceURI();
+			else if ("xml".equals(prefix))
+				return XMLConstants.XML_NS_URI;
+			return XMLConstants.NULL_NS_URI;
+		}
+
+		// This method isn't necessary for XPath processing.
+		@Override
+		public String getPrefix(String uri) {
+			throw new UnsupportedOperationException();
+		}
+
+		// This method isn't necessary for XPath processing either.
+		@SuppressWarnings("rawtypes")
+		@Override
+		public Iterator getPrefixes(String uri) {
+			throw new UnsupportedOperationException();
+		}
+	};
+
 }
