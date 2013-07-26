@@ -21,6 +21,29 @@ events in RDF format for project PLAY.
 
 Most adapters are Tomcat servlets.
 
+Configure
+---------
+To send events to PLAY using the RESTful event adapters a PLAY API Token is needed:
+
+* You can configure it by editing the properties file on the classpath, usually `/src/main/resources/play-eventadapter.properties`
+* Alternatively Maven will insert your API Token during building if you set the token in your `$HOME/.m2/settings.xml` `<properties>` as follows:
+```xml
+	<settings>
+		...
+		<profiles>
+		<profile>
+			<id>default-profile</id>
+			<activation>
+				<activeByDefault>TRUE</activeByDefault>
+			</activation>
+			<properties>
+				<play.platform.api.token>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</play.platform.api.token>
+			</properties>
+		</profiles>
+		...
+	</settings>
+```
+
 Issues
 ------
 For issues and bug reporting, please go to https://github.com/play-project/play/issues?labels=&page=1&state=open
