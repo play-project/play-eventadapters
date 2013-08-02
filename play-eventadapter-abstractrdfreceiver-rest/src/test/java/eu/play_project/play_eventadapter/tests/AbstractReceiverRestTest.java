@@ -1,7 +1,5 @@
 package eu.play_project.play_eventadapter.tests;
 
-import static org.junit.Assert.*;
-
 import java.util.List;
 
 import org.junit.Assert;
@@ -18,7 +16,7 @@ public class AbstractReceiverRestTest {
 	
 	@Before
 	public void setup() {
-		eventConsumer = new AbstractReceiverRest(){}; 
+		eventConsumer = new AbstractReceiverRest(){};
 	}
 	
 	@Test
@@ -42,7 +40,7 @@ public class AbstractReceiverRestTest {
 		String id1 = eventConsumer.subscribe(Stream.FacebookStatusFeed.getTopicUri(), "http://host:port/foo/bar");
 		Assert.assertTrue(!id1.equals(""));
 		
-		String id2 = eventConsumer.subscribe(Stream.TaxiUCCall.getTopicUri(), "http://host:port/foo/bar");
+		String id2 = eventConsumer.subscribe(Stream.TwitterFeed.getTopicUri(), "http://host:port/foo/bar");
 		Assert.assertTrue(!id2.equals(""));
 		
 		List<String> topics = eventConsumer.getTopics();

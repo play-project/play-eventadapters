@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -34,11 +32,12 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.event_processing.events.types.Event;
-import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.ontoware.rdf2go.exception.ModelRuntimeException;
 import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdf2go.model.ModelSet;
 import org.ontoware.rdf2go.model.Syntax;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.ebmwebsourcing.easycommons.xml.XMLHelper;
@@ -69,21 +68,23 @@ public abstract class AbstractReceiverRest {
 		playPlatformApiToken = token;
 	}
 
-	private final Logger logger = Logger.getAnonymousLogger();
+	private final Logger logger = LoggerFactory.getLogger(AbstractReceiverRest.class);
 	private final Map<String, String> subscriptions = Collections.synchronizedMap(new HashMap<String, String>());
-	
+
 	/* XXX:Clients are heavy-weight objects that manage the client-side communication infrastructure.
 	 *  Initialization as well as disposal of a Client instance may be a rather expensive operation.
 	 *  It is therefore advised to construct only a small number of Client instances in the application
 	 */
-	private final ClientBuilder cBuilder = new JerseyClientBuilder();
-	
+	private final Client client;
+
+
 	/**
 	 * Create an {@linkplain AbstractReceiverRest} using the specified PLAY DSB endpoint
 	 * to make subscriptions.
 	 */
 	public AbstractReceiverRest(String subscribeEndpoint) {
 		this.subscribeEndpoint = subscribeEndpoint;
+		client = ClientBuilder.newClient();
 	}
 
 	/**
@@ -91,8 +92,8 @@ public abstract class AbstractReceiverRest {
 	 * to make subscriptions.
 	 */
 	public AbstractReceiverRest() {
-		this.subscribeEndpoint = Constants.getProperties().getProperty(
-				"play.platform.endpoint") + "subscriptions";
+		this(Constants.getProperties().getProperty(
+				"play.platform.endpoint") + "subscriptions");
 	}
 
 	/**
@@ -109,8 +110,6 @@ public abstract class AbstractReceiverRest {
 	public String subscribe(String topic, String notificationsEndPoint)  {
 		
 		String subscriptionResourceUrl = "";
-		// XXX performance problem with new client
-		Client client = cBuilder.newClient();
 		
 		Subscription subscription = new Subscription();
 		subscription.setResource(topic + Stream.STREAM_ID_SUFFIX);
@@ -127,19 +126,17 @@ public abstract class AbstractReceiverRest {
 			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildPost(requestEntity)
 			  .invoke();
-
-		client.close();
 		
-		logger.fine("Subscribe response status : "+response.getStatus());
-			//System.out.println("Subscribe response status: "+response.getStatus());
+		logger.debug("Subscribe response status : "+response.getStatus());
+
 		if(response.getStatus() != 201){
-			logger.log(Level.SEVERE, "Subscription failed. HTTP Status Code: "+response.getStatus());
+			logger.error("Subscription to '{}' failed. HTTP Status Code: {}. {}", topic, response.getStatus(), response.getStatusInfo());
 		}
 		else{
 			String responseEntity = response.readEntity(String.class);
 			Subscription s = gson.fromJson(responseEntity, Subscription.class);
 			subscriptions.put(s.getSubscription_id(), topic);
-				//System.out.println("add sub: id"+s.getSubscription_id()+"\n");
+			logger.debug("adding subscription: id "+s.getSubscription_id());
 			subscriptionResourceUrl = s.getSubscription_id();
 				
 		}
@@ -153,23 +150,18 @@ public abstract class AbstractReceiverRest {
 	 * @param subscriptionId
 	 */
 	public void unsubscribe(String subscriptionId) {
-		
-		// XXX performance problem with new client
-		Client client = cBuilder.newClient();
-		
+
 		WebTarget wt = client.target(subscribeEndpoint+"/"+subscriptionId);
 		
 		Response response = wt.request()
 			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildDelete()
 			  .invoke();
-
-		client.close();
 		
-		logger.fine("Unsubscribe response status : "+response.getStatus());
+		logger.debug("Unsubscribe response status : "+response.getStatus());
 			//System.out.println("Unsubscribe response status: "+response.getStatus());
 		if(response.getStatus() != 204){
-			logger.log(Level.SEVERE, "Unsubscription failed. HTTP Status Code: "+response.getStatus());
+			logger.error("Unsubscription failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			subscriptions.remove(subscriptionId);
@@ -189,13 +181,13 @@ public abstract class AbstractReceiverRest {
 			unsubscribe(subscriptionID);
 		}
 		if (failCount > 0) {
-			logger.log(Level.WARNING,
+			logger.warn(
 					"Problem while unsubcribing from all subscriptions: "
 							+ failCount
 							+ " unsubscriptions failed at DSB endpoint '"
 							+ subscribeEndpoint + "'");
 		} else {
-			logger.log(Level.INFO,
+			logger.info(
 					"Successfully unsubcribed from all subscriptions at DSB endpoint '"
 							+ subscribeEndpoint + "'");
 		}
@@ -210,10 +202,7 @@ public abstract class AbstractReceiverRest {
 	public List<String> getTopics() {
 
 		List<String> topics = new ArrayList<String>();
-		
-		// XXX performance problem with new client
-		Client client = cBuilder.newClient();
-		
+
 		Gson gson = new Gson();
 		
 		WebTarget wt = client.target(subscribeEndpoint);
@@ -222,23 +211,19 @@ public abstract class AbstractReceiverRest {
 			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildGet()
 			  .invoke();
-
-		client.close();
 		
-		logger.fine("Get topics response status : "+response.getStatus());
+		logger.debug("Get topics response status : "+response.getStatus());
 			//System.out.println("Get topics response status: "+response.getStatus());
 		if(response.getStatus() != 200){
-			logger.log(Level.SEVERE, "Get topics failed. HTTP Status Code: "+response.getStatus());
+			logger.debug("Get topics failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			String responseEntity = response.readEntity(String.class);
 			Subscription[] s = gson.fromJson(responseEntity, Subscription[].class);
 			for(int i = 0; i < s.length; i++){
 				topics.add(s[i].getResource());
-					//System.out.println("topic: "+s[i].getResource());
-					//System.out.println("id: "+s[i].getSubscription_id());
 			}
-				//System.out.println();
+
 		}
 		response.close();
 		
@@ -321,7 +306,7 @@ public abstract class AbstractReceiverRest {
 		else {
 			syntax = WSN_MSG_DEFAULT_SYNTAX;
 		}
-		logger.fine("Parsing an incoming event with syntax '" + syntax + "'");
+		logger.debug("Parsing an incoming event with syntax '" + syntax + "'");
 		
 		try {
 			rdf.readFrom(r, Syntax.forMimeType(syntax));
@@ -391,6 +376,11 @@ public abstract class AbstractReceiverRest {
 		throw new UnsupportedOperationException("not implemented yet");
 		// TODO stuehmer
 
+	}
+	
+	@Override
+	public void finalize() {
+		client.close();
 	}
 
 	/**
