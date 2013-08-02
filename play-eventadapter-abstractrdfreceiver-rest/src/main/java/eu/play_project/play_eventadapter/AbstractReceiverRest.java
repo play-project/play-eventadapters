@@ -130,7 +130,7 @@ public abstract class AbstractReceiverRest {
 		logger.debug("Subscribe response status : "+response.getStatus());
 
 		if(response.getStatus() != 201){
-			logger.error("Subscription to '{}' failed. HTTP Status Code: {}. {}", topic, response.getStatus(), response.getStatusInfo());
+			logger.error("Subscription to '{}' at endpoint '{}' failed. HTTP Status Code: {}. {}", topic, subscribeEndpoint, response.getStatus(), response.getStatusInfo());
 		}
 		else{
 			String responseEntity = response.readEntity(String.class);
