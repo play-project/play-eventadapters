@@ -1,5 +1,4 @@
 package eu.play_project.play_eventadapter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
@@ -10,7 +9,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -26,8 +24,7 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
 public class AbstractSenderRest {
 	
 	/** Default REST endpoint for notifications */
-	private String notifyEndpoint = Constants.getProperties().getProperty(
-			"play.platform.endpoint") + "publish";
+	private final String notifyEndpoint;
 	
 	/** Credentials for publishing events to PLAY Platform */
 	private final String PLAY_PLATFORM_APITOKEN = Constants.getProperties("play-eventadapter.properties").getProperty(
@@ -39,15 +36,26 @@ public class AbstractSenderRest {
 	private final Client client;
 	private final WebTarget webTarget;
 	
-	public AbstractSenderRest(String defaultTopic) {
+	public AbstractSenderRest(String defaultTopic, String notifyEndpoint) {
 		this.defaultTopic = defaultTopic;
-		client = ClientBuilder.newClient();
-		webTarget = client.target(notifyEndpoint);
+		this.client = ClientBuilder.newClient();
+		this.notifyEndpoint = notifyEndpoint;
+		this.webTarget = client.target(notifyEndpoint);
 	}
 
+	public AbstractSenderRest(String defaultTopic) {
+		this(defaultTopic, Constants.getProperties().getProperty(
+				"play.platform.endpoint") + "publish");
+	}
+
+	public AbstractSenderRest(QName defaultTopic, String notifyEndpoint) {
+		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart(), notifyEndpoint);
+	}
+	
 	public AbstractSenderRest(QName defaultTopic) {
 		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart());
 	}
+
 	
 	/**
 	 * Send an {@linkplain Event} to the default Topic.
@@ -102,12 +110,11 @@ public class AbstractSenderRest {
 		
 		if (online) {
 			Response response = webTarget.request()
-				  .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_TYPE)
 				  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
 				  .buildPost(entity)
 				  .invoke();
 			
-			if(response.getStatus() != 200){
+			if(response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL){
 				logger.log(Level.SEVERE, "No event was notified because of response status "+response.getStatus() + " " + response.getStatusInfo());
 			}
 			else {
@@ -116,15 +123,6 @@ public class AbstractSenderRest {
 			
 			response.close();
 		}
-	}
-
-	/**
-	 * Overwrite the default notify endpoint.
-	 * 
-	 * @param notifyEndpoint
-	 */
-	public void setNotifyEndpoint(String dsbNotify) {
-		this.notifyEndpoint = dsbNotify;
 	}
 
 	/**

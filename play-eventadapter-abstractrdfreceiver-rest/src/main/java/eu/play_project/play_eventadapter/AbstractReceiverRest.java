@@ -31,6 +31,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.exception.ModelRuntimeException;
 import org.ontoware.rdf2go.model.Model;
@@ -232,9 +233,50 @@ public abstract class AbstractReceiverRest {
 	}
 
 	/**
+	 * Retrieve RDF from the contents of the "message" attribute in a REST call.
+	 * 
+	 * @param rdf
+	 *            is expected to contain RDF using the syntax declared in
+	 *            {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
+	 *            .
+	 * @return
+	 * @throws NoRdfEventException
+	 */
+	public Model parseRdfRest(String rdf) throws NoRdfEventException {
+		ModelSet m = EventHelpers.createEmptyModelSet();
+		try {
+			m.readFrom(IOUtils.toInputStream(rdf, "UTF-8"), Syntax.forMimeType(WSN_MSG_DEFAULT_SYNTAX));
+		} catch (Exception e) {
+			throw new NoRdfEventException("An exception occured while parsing RDF of an incoming event.", e);
+		}
+		
+		if (m.isEmpty()) {
+			throw new NoRdfEventException("Zero RDF statements were found in the incoming event (no triples or quads).");
+		}
+		else if (!m.getModels().hasNext()) {
+			throw new NoRdfEventException("No RDF statements with appropriate graph were found in the incoming event (no quads).");
+		}
+		else {
+			Iterator<Model> it = m.getModels();
+			Model model = it.next();
+			long max = model.size();
+			// For now, select the largest model
+			while (it.hasNext()) {
+				Model temp = it.next();
+				long tempSize = temp.size();
+				if (tempSize > max) {
+					max = tempSize;
+					model = temp;
+				}
+			}
+			return model;
+		}
+	}
+		
+	/**
 	 * Retrieve RDF from the contents of an XML message.
 	 * 
-	 * @param stringNotify
+	 * @param stringNotify a String containing a Notify SOAP message
 	 * @return
 	 * @throws NoRdfEventException if there was no RDF to parse in the input
 	 */

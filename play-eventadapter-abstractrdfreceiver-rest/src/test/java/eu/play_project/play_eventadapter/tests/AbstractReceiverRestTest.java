@@ -9,10 +9,11 @@ import org.junit.Test;
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_eventadapter.AbstractReceiverRest;
+import eu.play_project.play_eventadapter.NoRdfEventException;
 
 public class AbstractReceiverRestTest {
 	
-	private AbstractReceiverRest eventConsumer;
+	private static AbstractReceiverRest eventConsumer;
 	
 	@Before
 	public void setup() {
@@ -27,16 +28,24 @@ public class AbstractReceiverRestTest {
 				"play.platform.endpoint"));
 	}
 	
-	@Test
-	public void testSubscribeAndUnsubscribe() {
+	/**
+	 * Manual test
+	 */
+	public static void main(String[] args) {
+		eventConsumer = new AbstractReceiverRest(){};
+		
+		/*
+		 * test subscribe and unsubscribe
+		 */
 		String id = eventConsumer.subscribe(Stream.FacebookStatusFeed.getTopicUri(), "http://host:port/foo/bar");
 		Assert.assertTrue(!id.equals(""));
 		eventConsumer.unsubscribe(id);
 		Assert.assertTrue(true);
-	}
 
-	@Test
-	public void testGetTopics() {
+
+		/*
+		 * test GetTopics
+		 */
 		String id1 = eventConsumer.subscribe(Stream.FacebookStatusFeed.getTopicUri(), "http://host:port/foo/bar");
 		Assert.assertTrue(!id1.equals(""));
 		
@@ -53,5 +62,10 @@ public class AbstractReceiverRestTest {
 		eventConsumer.unsubscribe(id1);
 		eventConsumer.unsubscribe(id2);
 		Assert.assertTrue(true);
+	}
+	
+	@Test(expected = NoRdfEventException.class)
+	public void testParseRdf() throws NoRdfEventException {
+		eventConsumer.parseRdfRest("");
 	}
 }
