@@ -49,12 +49,20 @@ import com.google.gson.Gson;
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
+import eu.play_project.play_eventadapter.tests.SendAndReceiveTest;
 
 /**
- * A an abstract event consumer which can subscribe to PLAY RDF events and deal
- * with the necessary un-marshalling and parsing.
+ * A consumer of PLAY events. It can subscribe to PLAY RDF events and deal with
+ * the necessary un-marshalling and parsing.
  * 
- * @author stuehmer
+ * The REST endpoint is fixed because subscriptions (and later unsubscriptions)
+ * are stateful.
+ * 
+ * Subscriptions require a local HTTP endpoint to receieve callbacks. Examples
+ * of deploying such an endpoint can be found in Unit Tests
+ * {@linkplain SendAndReceiveTest}.
+ * 
+ * @author Roland Stühmer
  * 
  */
 public abstract class AbstractReceiverRest {
@@ -72,16 +80,19 @@ public abstract class AbstractReceiverRest {
 	private final Logger logger = LoggerFactory.getLogger(AbstractReceiverRest.class);
 	private final Map<String, String> subscriptions = Collections.synchronizedMap(new HashMap<String, String>());
 
-	/* XXX:Clients are heavy-weight objects that manage the client-side communication infrastructure.
-	 *  Initialization as well as disposal of a Client instance may be a rather expensive operation.
-	 *  It is therefore advised to construct only a small number of Client instances in the application
+	/*
+	 * Clients are heavy-weight objects that manage the client-side
+	 * communication infrastructure. Initialization as well as disposal of a
+	 * Client instance may be a rather expensive operation. It is therefore
+	 * advised to construct only a small number of Client instances in the
+	 * application
 	 */
 	private final Client client;
 
 
 	/**
-	 * Create an {@linkplain AbstractReceiverRest} using the specified PLAY DSB endpoint
-	 * to make subscriptions.
+	 * Create a receiever using the specified PLAY endpoint to make
+	 * subscriptions.
 	 */
 	public AbstractReceiverRest(String subscribeEndpoint) {
 		this.subscribeEndpoint = subscribeEndpoint;
@@ -89,8 +100,8 @@ public abstract class AbstractReceiverRest {
 	}
 
 	/**
-	 * Create an {@linkplain AbstractReceiverRest} using the default PLAY DSB endpoints
-	 * to make subscriptions.
+	 * Create a receiever using the default PLAY endpoint (from the PLAY
+	 * properties files) to make subscriptions.
 	 */
 	public AbstractReceiverRest() {
 		this(Constants.getProperties().getProperty(
