@@ -1,4 +1,6 @@
 package eu.play_project.play_eventadapter;
+import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTAX;
+
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
@@ -103,9 +105,12 @@ public class AbstractSenderRest {
 	 */
 	public void notify(String notifPayload, String topicUsed) {
 		
+		// See class org.ow2.play.governance.platform.user.api.rest.bean.Notification for available fields:
 		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
 		data.add("resource", topicUsed + Stream.STREAM_ID_SUFFIX);
 		data.add("message", notifPayload);
+		data.add("messageMediatype", WSN_MSG_DEFAULT_SYNTAX);
+		
 		Entity<Form> entity = Entity.form(data);
 		
 		if (online) {
