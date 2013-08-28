@@ -9,6 +9,7 @@ import static eu.play_project.play_commons.constants.Event.WSN_MSG_SYNTAX_ATTRIB
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import org.ontoware.rdf2go.exception.ModelRuntimeException;
 import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdf2go.model.ModelSet;
 import org.ontoware.rdf2go.model.Syntax;
+import org.ontoware.rdfreactor.runtime.ReactorResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -412,9 +414,11 @@ public abstract class AbstractReceiverRest {
 	 * @throws NoRdfEventException if there was no RDF to parse in the input
 	 */
 	public <EventType extends Event> EventType getEvent(String stringNotify, Class<EventType> type) throws NoRdfEventException {
-		throw new UnsupportedOperationException("not implemented yet");
-		// TODO stuehmer
-
+		try {
+			return this.getEvent(XMLHelper.createDocumentFromString(stringNotify), type);
+		} catch (Exception e) {
+			throw new NoRdfEventException("Exception while reading RDF event from XML message.", e);
+		}
 	}
 
 	/**
@@ -426,9 +430,23 @@ public abstract class AbstractReceiverRest {
 	 * @throws NoRdfEventException if there was no RDF to parse in the input
 	 */
 	public <EventType extends Event> EventType getEvent(Node xmlNotify, Class<EventType> type) throws NoRdfEventException {
-		throw new UnsupportedOperationException("not implemented yet");
-		// TODO stuehmer
-
+		Model model = this.parseRdf(xmlNotify);
+		EventType event = null;
+		
+		Method m;
+		try {
+			m = type.getMethod("getAllInstances_as", Model.class);
+			@SuppressWarnings("unchecked")
+			ReactorResult<EventType> result = (ReactorResult<EventType>) m.invoke(null, model);
+			Iterator<EventType> it = result.asClosableIterator();
+			if (it.hasNext()) {
+				event = it.next();
+			}
+		} catch (Exception e) {
+			throw new NoRdfEventException("Exception while instanciating event from RDF.", e);
+		}
+		
+		return event;
 	}
 	
 	@Override
