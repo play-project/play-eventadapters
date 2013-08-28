@@ -1,4 +1,5 @@
 package eu.play_project.play_eventadapter;
+
 import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTAX;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +24,12 @@ import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
 
+/**
+ * A sender of PLAY events. It is configured to publish events at a fixed
+ * RESTful HTTP endpoint under varying event topics (streams).
+ * 
+ * @author Roland Stühmer
+ */
 public class AbstractSenderRest {
 	
 	/** Default REST endpoint for notifications */
@@ -38,26 +45,45 @@ public class AbstractSenderRest {
 	private final Client client;
 	private final WebTarget webTarget;
 	
+	/**
+	 * Construct a sender with a default topic to create messages and with a
+	 * given endpoint to publish messages.
+	 */
 	public AbstractSenderRest(String defaultTopic, String notifyEndpoint) {
 		this.defaultTopic = defaultTopic;
 		this.client = ClientBuilder.newClient();
 		this.notifyEndpoint = notifyEndpoint;
 		this.webTarget = client.target(notifyEndpoint);
 	}
-
+	
+	/**
+	 * Construct a sender with a default topic to create messages and with a
+	 * given endpoint to publish messages.
+	 */
+	public AbstractSenderRest(QName defaultTopic, String notifyEndpoint) {
+		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart(), notifyEndpoint);
+	}
+	
+	/**
+	 * Construct a sender with a default topic to create messages.
+	 * 
+	 * Messages will be sent to the endpoint defined in the PLAY properties
+	 * files.
+	 */
 	public AbstractSenderRest(String defaultTopic) {
 		this(defaultTopic, Constants.getProperties().getProperty(
 				"play.platform.endpoint") + "publish");
 	}
 
-	public AbstractSenderRest(QName defaultTopic, String notifyEndpoint) {
-		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart(), notifyEndpoint);
-	}
-	
+	/**
+	 * Construct a sender with a default topic to create messages.
+	 * 
+	 * Messages will be sent to the endpoint defined in the PLAY properties
+	 * files.
+	 */
 	public AbstractSenderRest(QName defaultTopic) {
 		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart());
 	}
-
 	
 	/**
 	 * Send an {@linkplain Event} to the default Topic.
@@ -95,6 +121,10 @@ public class AbstractSenderRest {
 
 	/**
 	 * Send a {@linkplain String} payload to the default topic.
+	 * 
+	 * The payload must be formatted in the default RDF syntax from
+	 * {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
+	 * .
 	 */
 	public void notify(String notifPayload) {
 		notify(notifPayload, this.defaultTopic);
@@ -102,14 +132,25 @@ public class AbstractSenderRest {
 
 	/**
 	 * Send a {@linkplain String} payload to a specific topic.
+	 * 
+	 * The payload must be formatted in the default RDF syntax from
+	 * {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
+	 * .
 	 */
 	public void notify(String notifPayload, String topicUsed) {
+		notify(notifPayload, topicUsed, WSN_MSG_DEFAULT_SYNTAX);
+	}
+	
+	/**
+	 * Send a {@linkplain String} payload to a specific topic.
+	 */
+	public void notify(String notifPayload, String topicUsed, String notifMediatype) {
 		
 		// See class org.ow2.play.governance.platform.user.api.rest.bean.Notification for available fields:
 		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
 		data.add("resource", topicUsed + Stream.STREAM_ID_SUFFIX);
 		data.add("message", notifPayload);
-		data.add("messageMediatype", WSN_MSG_DEFAULT_SYNTAX);
+		data.add("messageMediatype", notifMediatype);
 		
 		Entity<Form> entity = Entity.form(data);
 		
