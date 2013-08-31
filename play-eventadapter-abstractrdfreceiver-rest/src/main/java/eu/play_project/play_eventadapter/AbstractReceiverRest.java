@@ -39,6 +39,7 @@ import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdf2go.model.ModelSet;
 import org.ontoware.rdf2go.model.Syntax;
 import org.ontoware.rdfreactor.runtime.ReactorResult;
+import org.ow2.play.governance.platform.user.api.rest.bean.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -126,8 +127,8 @@ public abstract class AbstractReceiverRest {
 		String subscriptionResourceUrl = "";
 		
 		Subscription subscription = new Subscription();
-		subscription.setResource(topic + Stream.STREAM_ID_SUFFIX);
-		subscription.setSubscriber(notificationsEndPoint);
+		subscription.resource = topic + Stream.STREAM_ID_SUFFIX;
+		subscription.subscriber = notificationsEndPoint;
 		
 		Gson gson = new Gson();
 		// json entity of request
@@ -149,9 +150,9 @@ public abstract class AbstractReceiverRest {
 		else{
 			String responseEntity = response.readEntity(String.class);
 			Subscription s = gson.fromJson(responseEntity, Subscription.class);
-			subscriptions.put(s.getSubscription_id(), topic);
-			logger.debug("adding subscription: id "+s.getSubscription_id());
-			subscriptionResourceUrl = s.getSubscription_id();
+			subscriptions.put(s.subscriptionID, topic);
+			logger.debug("adding subscription: id "+s.subscriptionID);
+			subscriptionResourceUrl = s.subscriptionID;
 				
 		}
 		response.close();
@@ -227,15 +228,15 @@ public abstract class AbstractReceiverRest {
 			  .invoke();
 		
 		logger.debug("Get topics response status : "+response.getStatus());
-			//System.out.println("Get topics response status: "+response.getStatus());
+		logger.debug("Get topics response status: "+response.getStatus());
 		if(response.getStatus() != 200){
-			logger.debug("Get topics failed. HTTP Status Code: "+response.getStatus());
+			logger.warn("Get topics failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			String responseEntity = response.readEntity(String.class);
 			Subscription[] s = gson.fromJson(responseEntity, Subscription[].class);
 			for(int i = 0; i < s.length; i++){
-				topics.add(s[i].getResource());
+				topics.add(s[i].resource);
 			}
 
 		}
@@ -252,8 +253,6 @@ public abstract class AbstractReceiverRest {
 	 *            is expected to contain RDF using the syntax declared in
 	 *            {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
 	 *            .
-	 * @return
-	 * @throws NoRdfEventException
 	 */
 	public Model parseRdfRest(String rdf) throws NoRdfEventException {
 		ModelSet m = EventHelpers.createEmptyModelSet();
