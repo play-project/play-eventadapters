@@ -52,7 +52,6 @@ import com.google.gson.Gson;
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
-import eu.play_project.play_eventadapter.tests.SendAndReceiveTest;
 
 /**
  * A consumer of PLAY events. It can subscribe to PLAY RDF events and deal with
@@ -63,7 +62,7 @@ import eu.play_project.play_eventadapter.tests.SendAndReceiveTest;
  * 
  * Subscriptions require a local HTTP endpoint to receieve callbacks. Examples
  * of deploying such an endpoint can be found in Unit Tests
- * {@linkplain SendAndReceiveTest}.
+ * {@linkplain eu.play_project.play_eventadapter.tests.SendAndReceiveSoapTest}.
  * 
  * @author Roland Stühmer
  * 

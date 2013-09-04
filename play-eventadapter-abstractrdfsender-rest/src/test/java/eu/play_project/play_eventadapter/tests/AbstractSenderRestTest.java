@@ -21,8 +21,8 @@ public class AbstractSenderRestTest {
 	}
 	
 	@Test
-	public void testNotifyStringQName() {
-		eventSource.notify("{'foo' : 'bar'}");
+	public void testNotify() {
+		eventSource.notify("");
 		assertTrue(true);
 	}
 
