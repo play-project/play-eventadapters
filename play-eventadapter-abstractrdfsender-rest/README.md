@@ -14,7 +14,7 @@ Configure
 
 Use
 ---
-1. Instatiate and send event ([example](../src/test/java/eu/play_project/play_eventadapter/tests/SendAndReceiveTest.java))
+1. Instatiate and send event ([example](src/test/java/eu/play_project/play_eventadapter/tests/SendAndReceiveTest.java))
 
 Misc
 ----
