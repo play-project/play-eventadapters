@@ -14,7 +14,7 @@ Configure
 
 Use
 ---
-1. Instatiate and send event ([example](https://github.com/play-project/play-eventadapters/blob/master/play-eventadapter-abstractrdfsender/src/test/java/eu/play_project/play_eventadapter/tests/AbstractSenderTest.java))
+1. Instatiate and send event ([example](src/test/java/eu/play_project/play_eventadapter/tests/AbstractSenderTest.java))
 
 Misc
 ----
