@@ -1,11 +1,9 @@
 package eu.play_project.play_eventadapter.tests;
 
-import static eu.play_project.play_commons.constants.Event.EVENT_ID_SUFFIX;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +14,7 @@ import javax.ws.rs.core.Response;
 
 import junit.framework.Assert;
 
+import org.event_processing.events.types.Event;
 import org.event_processing.events.types.UcTelcoCall;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -24,13 +23,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.ontoware.rdf2go.model.Model;
-import org.ontoware.rdf2go.model.node.impl.URIImpl;
 import org.ow2.play.governance.platform.user.api.rest.PublishService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.play_project.platformservices.eventvalidation.InvalidEventException;
 import eu.play_project.platformservices.eventvalidation.Validator;
+import eu.play_project.play_commons.constants.Source;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
 import eu.play_project.play_eventadapter.AbstractReceiverRest;
@@ -66,12 +65,14 @@ public class SendAndReceiveTest {
 		 * (1) Send event
 		 */
 		AbstractSenderRest rdfSender = new AbstractSenderRest("http://example.com/topic", BASE_URI);
+		final String MY = "http://mynamespace.com/";
 		
-		String eventId = EventHelpers.createRandomEventId("UnitTest");
-		UcTelcoCall event = new UcTelcoCall(EventHelpers.createEmptyModel(eventId),
-			eventId + EVENT_ID_SUFFIX, true);
-		event.setEndTime(Calendar.getInstance());
-		event.setStream(new URIImpl(Stream.TaxiUCCall.getUri()));
+		Event event = EventHelpers.builder("UnitTest", true)
+				.type(UcTelcoCall.RDFS_CLASS)
+				.stream(Stream.TaxiUCCall)
+				.source(Source.UnitTest)
+				.addProperty(MY + "myProp", "Hello World")
+				.build();
 		
 		rdfSender.notify(event);
 		
