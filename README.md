@@ -45,6 +45,11 @@ To send events to PLAY using the RESTful event adapters a PLAY API Token is need
 	</settings>
 ```
 
+SDK
+---
+To send or receive your own events, see the subprojects *play-eventadapter-abstractrdf...*
+
+
 Issues
 ------
 For issues and bug reporting, please go to https://github.com/play-project/play/issues?labels=&page=1&state=open
