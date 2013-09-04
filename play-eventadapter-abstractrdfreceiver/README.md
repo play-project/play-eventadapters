@@ -13,7 +13,7 @@ Configure
 
 Use
 ---
-1. Expose a SOAP endpoint ([example](https://github.com/play-project/play-eventadapters/blob/master/play-eventadapter-abstractrdfsender/src/test/java/eu/play_project/play_eventadapter/tests/SendAndReceiveTest.java))
+1. Expose a SOAP endpoint ([example](../play-eventadapter-abstractrdfsender/src/test/java/eu/play_project/play_eventadapter/tests/SendAndReceiveTest.java))
 2. Subscribe your endpoint (example see above)
 3. Do something with the event
 
