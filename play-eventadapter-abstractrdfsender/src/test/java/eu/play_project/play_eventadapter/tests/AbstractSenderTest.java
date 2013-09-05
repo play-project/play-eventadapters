@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import java.util.Calendar;
 
 import org.event_processing.events.types.CrisisMeasureEvent;
+import org.event_processing.events.types.Event;
 import org.junit.Before;
 import org.junit.Test;
 import org.ontoware.rdf2go.model.node.impl.URIImpl;
@@ -28,6 +29,10 @@ public class AbstractSenderTest {
 		eventSource.setNoNetworking(true);
 	}
 
+	/**
+	 * To create and populate the event object this test uses the RDF SDK by
+	 * instantiating a (generated) class {@link CrisisMeasureEvent}.
+	 */
 	@Test
 	public void testNotifyModel() {
 		// Create an event ID used in RDF context and RDF subject
@@ -63,5 +68,39 @@ public class AbstractSenderTest {
 			fail("Make sure that the created event meets some PLAY standards.");
 		}
 	}
+
+	/**
+	 * To create and populate the event object this test uses the builder from
+	 * {@link EventHelpers#builder()}.
+	 */
+	@Test
+	public void testNotifyBuilder() {
+		String eventId = EventHelpers.createRandomEventId("crisis");
+
+		Event event = EventHelpers.builder(eventId)
+				.type(CrisisMeasureEvent.RDFS_CLASS)
+				.stream(SituationalEventStream)
+				.endTime(Calendar.getInstance())
+				.addProperty(CrisisMeasureEvent.CRISISFREQUENCY, "1000")
+				.addProperty(CrisisMeasureEvent.CRISISCOMPONENTNAME, "Component-101")
+				.addProperty(CrisisMeasureEvent.CRISISLOCALISATION, "somewhere")
+				.addProperty(CrisisMeasureEvent.CRISISSITUATION, "Sit-01")
+				.addProperty(CrisisMeasureEvent.CRISISUID, eventId)
+				.addProperty(CrisisMeasureEvent.CRISISUNIT, "MHz")
+				.addProperty(CrisisMeasureEvent.CRISISVALUE, "123")
+				.addProperty(CrisisMeasureEvent.CRISISCOMPONENTSEID, "someSEID")
+				.build();
+		
+		eventSource.notify(event, SituationalEventStream.getTopicQName());
+		
+		// Only for testing: send everything to a validator:
+		Validator v = new Validator().checkModel(event.getModel().getContextURI(), event.getModel());
+		try {
+			assertTrue("Make sure that the created event meets some PLAY standards.", v.isValid());
+		} catch (InvalidEventException e) {
+			fail("Make sure that the created event meets some PLAY standards.");
+		}
+	}
+
 	
 }
