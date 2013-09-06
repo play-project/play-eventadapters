@@ -19,6 +19,7 @@ import javax.xml.namespace.QName;
 
 import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.model.Model;
+import org.ow2.play.governance.platform.user.api.rest.PublishService;
 
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
@@ -32,9 +33,6 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  */
 public class AbstractSenderRest {
 	
-	/** Default REST endpoint for notifications */
-	private final String notifyEndpoint;
-	
 	/** Credentials for publishing events to PLAY Platform */
 	private final String PLAY_PLATFORM_APITOKEN = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
@@ -43,7 +41,7 @@ public class AbstractSenderRest {
 	private String defaultTopic;
 	private Boolean online = true;
 	private final Client client;
-	private final WebTarget webTarget;
+	private final WebTarget notifyTarget;
 	
 	/**
 	 * Construct a sender with a default topic to create messages and with a
@@ -52,8 +50,7 @@ public class AbstractSenderRest {
 	public AbstractSenderRest(String defaultTopic, String notifyEndpoint) {
 		this.defaultTopic = defaultTopic;
 		this.client = ClientBuilder.newClient();
-		this.notifyEndpoint = notifyEndpoint;
-		this.webTarget = client.target(notifyEndpoint);
+		this.notifyTarget = client.target(notifyEndpoint);
 	}
 	
 	/**
@@ -72,7 +69,7 @@ public class AbstractSenderRest {
 	 */
 	public AbstractSenderRest(String defaultTopic) {
 		this(defaultTopic, Constants.getProperties().getProperty(
-				"play.platform.endpoint") + "publish");
+				"play.platform.endpoint") + PublishService.PATH);
 	}
 
 	/**
@@ -155,7 +152,7 @@ public class AbstractSenderRest {
 		Entity<Form> entity = Entity.form(data);
 		
 		if (online) {
-			Response response = webTarget.request()
+			Response response = notifyTarget.request()
 				  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
 				  .buildPost(entity)
 				  .invoke();
@@ -175,7 +172,7 @@ public class AbstractSenderRest {
 	 * Get the current notify endpoint.
 	 */
 	public String getNotifyEndpoint() {
-		return this.notifyEndpoint;
+		return this.notifyTarget.getUri().toString();
 	}
 	
 	/**
