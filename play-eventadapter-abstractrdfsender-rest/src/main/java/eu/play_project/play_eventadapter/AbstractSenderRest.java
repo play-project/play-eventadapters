@@ -64,8 +64,8 @@ public class AbstractSenderRest {
 	/**
 	 * Construct a sender with a default topic to create messages.
 	 * 
-	 * Messages will be sent to the endpoint defined in the PLAY properties
-	 * files.
+	 * Messages will be sent to the endpoint defined in the PLAY properties in
+	 * {@link Constants#getProperties()}.
 	 */
 	public AbstractSenderRest(String defaultTopic) {
 		this(defaultTopic, Constants.getProperties().getProperty(
