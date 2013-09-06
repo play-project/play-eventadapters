@@ -23,6 +23,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.XMLConstants;
@@ -39,7 +40,10 @@ import org.ontoware.rdf2go.model.Model;
 import org.ontoware.rdf2go.model.ModelSet;
 import org.ontoware.rdf2go.model.Syntax;
 import org.ontoware.rdfreactor.runtime.ReactorResult;
+import org.ow2.play.governance.platform.user.api.rest.SubscriptionService;
+import org.ow2.play.governance.platform.user.api.rest.TopicService;
 import org.ow2.play.governance.platform.user.api.rest.bean.Subscription;
+import org.ow2.play.governance.platform.user.api.rest.bean.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -47,7 +51,6 @@ import org.w3c.dom.Node;
 import com.ebmwebsourcing.easycommons.xml.XMLHelper;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.NotificationMessageHolderType;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Notify;
-import com.google.gson.Gson;
 
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
@@ -68,9 +71,6 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  * 
  */
 public abstract class AbstractReceiverRest {
-
-	/** Default REST endpoint for notifications */
-	private final String subscribeEndpoint;
 	
 	private String playPlatformApiToken = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
@@ -90,31 +90,40 @@ public abstract class AbstractReceiverRest {
 	 * application
 	 */
 	private final Client client;
-
+	private final WebTarget subscriptionsTarget;
+	private final WebTarget topicsTarget;
 
 	/**
-	 * Create a receiever using the specified PLAY endpoint to make
-	 * subscriptions.
+	 * Create a receiever using the specified PLAY endpoints to make
+	 * subscriptions and get topics.
 	 */
-	public AbstractReceiverRest(String subscribeEndpoint) {
-		this.subscribeEndpoint = subscribeEndpoint;
+	public AbstractReceiverRest(String subscribeEndpoint, String topicsEndpoint) {
 		client = ClientBuilder.newClient();
+		subscriptionsTarget = client.target(subscribeEndpoint);
+		topicsTarget = client.target(topicsEndpoint);
+	}
+	
+	/**
+	 * Create a receiever using the specified PLAY platform endpoint.
+	 */
+	public AbstractReceiverRest(String platformEndpoint) {
+		this(platformEndpoint + SubscriptionService.PATH, platformEndpoint + TopicService.PATH);
 	}
 
 	/**
 	 * Create a receiever using the default PLAY endpoint (from the PLAY
-	 * properties files) to make subscriptions.
+	 * properties files in {@link Constants#getProperties()}) to make
+	 * subscriptions and get topics.
 	 */
 	public AbstractReceiverRest() {
-		this(Constants.getProperties().getProperty(
-				"play.platform.endpoint") + "subscriptions");
+		this(Constants.getProperties().getProperty("play.platform.endpoint"));
 	}
 
 	/**
 	 * Subscribe to a topic at the endpoint in
-	 * {@link AbstractReceiverRest#subscribeEndpoint}. The callback will be used by the
-	 * DSB to send the subscriptions. It is your responsibility to prevent/avoid
-	 * duplicate subscriptions if needed.
+	 * {@link AbstractReceiverRest#AbstractReceiverRest(String)}. The callback
+	 * will be used by the DSB to send the subscriptions. It is your
+	 * responsibility to prevent/avoid duplicate subscriptions if needed.
 	 * 
 	 * @param topic
 	 * @param notificationsEndPoint
@@ -128,27 +137,20 @@ public abstract class AbstractReceiverRest {
 		Subscription subscription = new Subscription();
 		subscription.resource = topic + Stream.STREAM_ID_SUFFIX;
 		subscription.subscriber = notificationsEndPoint;
-		
-		Gson gson = new Gson();
-		// json entity of request
-		Entity<String> requestEntity = Entity.json(gson.toJson(subscription));
-		
-		WebTarget wt = client.target(subscribeEndpoint);
-		
-		Response response = wt.request(MediaType.APPLICATION_JSON_TYPE)
+
+		Response response = subscriptionsTarget.request(MediaType.APPLICATION_JSON_TYPE)
 			  .header("Content-Type", MediaType.APPLICATION_JSON_TYPE)
 			  .header("Authorization", "Bearer " + playPlatformApiToken)
-			  .buildPost(requestEntity)
+			  .buildPost(Entity.json(subscription))
 			  .invoke();
 		
 		logger.debug("Subscribe response status : "+response.getStatus());
 
 		if(response.getStatus() != 201){
-			logger.error("Subscription to '{}' at endpoint '{}' failed. HTTP Status Code: {}. {}", topic, subscribeEndpoint, response.getStatus(), response.getStatusInfo());
+			logger.error("Subscription to '{}' at endpoint '{}' failed. HTTP Status Code: {}. {}", topic, subscriptionsTarget.getUri(), response.getStatus(), response.getStatusInfo());
 		}
 		else{
-			String responseEntity = response.readEntity(String.class);
-			Subscription s = gson.fromJson(responseEntity, Subscription.class);
+			Subscription s = response.readEntity(Subscription.class);
 			subscriptions.put(s.subscriptionID, topic);
 			logger.debug("adding subscription: id "+s.subscriptionID);
 			subscriptionResourceUrl = s.subscriptionID;
@@ -165,7 +167,7 @@ public abstract class AbstractReceiverRest {
 	 */
 	public void unsubscribe(String subscriptionId) {
 
-		WebTarget wt = client.target(subscribeEndpoint+"/"+subscriptionId);
+		WebTarget wt = subscriptionsTarget.path(subscriptionId);
 		
 		Response response = wt.request()
 			  .header("Authorization", "Bearer " + playPlatformApiToken)
@@ -173,13 +175,11 @@ public abstract class AbstractReceiverRest {
 			  .invoke();
 		
 		logger.debug("Unsubscribe response status : "+response.getStatus());
-			//System.out.println("Unsubscribe response status: "+response.getStatus());
 		if(response.getStatus() != 204){
 			logger.error("Unsubscription failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
 			subscriptions.remove(subscriptionId);
-				//System.out.println("remove sub: id"+subscriptionId+"\n");
 		}
 		response.close();
 	}
@@ -199,11 +199,11 @@ public abstract class AbstractReceiverRest {
 					"Problem while unsubcribing from all subscriptions: "
 							+ failCount
 							+ " unsubscriptions failed at DSB endpoint '"
-							+ subscribeEndpoint + "'");
+							+ subscriptionsTarget.getUri() + "'");
 		} else {
 			logger.info(
 					"Successfully unsubcribed from all subscriptions at DSB endpoint '"
-							+ subscribeEndpoint + "'");
+							+ subscriptionsTarget.getUri() + "'");
 		}
 	}
 
@@ -215,33 +215,26 @@ public abstract class AbstractReceiverRest {
 	 */
 	public List<String> getTopics() {
 
-		List<String> topics = new ArrayList<String>();
+		List<String> result = new ArrayList<String>();
 
-		Gson gson = new Gson();
-		
-		WebTarget wt = client.target(subscribeEndpoint);
-		
-		Response response = wt.request(MediaType.APPLICATION_JSON_TYPE)
+		Response response = topicsTarget.request(MediaType.APPLICATION_JSON_TYPE)
 			  .header("Authorization", "Bearer " + playPlatformApiToken)
 			  .buildGet()
 			  .invoke();
-		
-		logger.debug("Get topics response status : "+response.getStatus());
+			
 		logger.debug("Get topics response status: "+response.getStatus());
 		if(response.getStatus() != 200){
 			logger.warn("Get topics failed. HTTP Status Code: "+response.getStatus());
 		}
 		else{
-			String responseEntity = response.readEntity(String.class);
-			Subscription[] s = gson.fromJson(responseEntity, Subscription[].class);
-			for(int i = 0; i < s.length; i++){
-				topics.add(s[i].resource);
+			List<Topic> topics = response.readEntity(new GenericType<List<Topic>>(){});
+			for(Topic t : topics){
+				result.add(t.ns + t.name);
 			}
-
 		}
 		response.close();
 		
-		return topics;
+		return result;
 		
 	}
 
@@ -456,7 +449,7 @@ public abstract class AbstractReceiverRest {
 	 * Get the defined subscribe and unsubscribe endpoint.
 	 */
 	public String getSubscribeEndpoint() {
-		return this.subscribeEndpoint;
+		return this.subscriptionsTarget.getUri().toString();
 	}
 	
 	private final NamespaceContext nc = new NamespaceContext() {

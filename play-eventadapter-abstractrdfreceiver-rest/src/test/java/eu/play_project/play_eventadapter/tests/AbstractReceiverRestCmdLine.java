@@ -10,20 +10,23 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.play_project.play_commons.constants.Constants;
+import eu.play_project.play_commons.constants.Stream;
+import eu.play_project.play_eventadapter.AbstractReceiverRest;
+
 
 /**
  * @author Ningyuan
  *
  */
-public class RestReceiverTest {
+public class AbstractReceiverRestCmdLine {
 
 	/**
-	 * @param args
-	 * @throws IOException 
+	 * Manual test.
 	 */
 	public static void main(String[] args){
 		
-		DSBReceiverRest receiver = new DSBReceiverRest("http://app.event-processing.org:8080/play/api/v1/platform/subscriptions");
+		AbstractReceiverRest receiver = new AbstractReceiverRest() {};
 		InputStreamReader in = new InputStreamReader(new BufferedInputStream(System.in));
 		BufferedReader bin = new BufferedReader(in);
 		List<String> subIds = new ArrayList<String>();
@@ -34,7 +37,9 @@ public class RestReceiverTest {
 			
 			while(!s.equalsIgnoreCase("exit")){
 				if(s.equalsIgnoreCase("sub")){
-					String id = receiver.subscribe("http://streams.event-processing.org/ids/PersonalStream1", "http://requestb.in/x3i1mlx3");
+					System.out.println("Service: " + receiver.getSubscribeEndpoint());
+					System.out.println("Token: " + Constants.getProperties("play-eventadapter.properties").getProperty("play.platform.api.token"));
+					String id = receiver.subscribe(Stream.PersonalStream1.getTopicUri(), "http://requestb.in/x3i1mlx3");
 					if(id != null && !id.equals("")){
 						subIds.add(id);
 						System.out.println("subed: "+id);
