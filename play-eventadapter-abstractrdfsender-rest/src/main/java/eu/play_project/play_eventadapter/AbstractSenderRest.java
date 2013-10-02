@@ -157,7 +157,7 @@ public class AbstractSenderRest {
 				  .buildPost(entity)
 				  .invoke();
 			
-			if(response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL){
+			if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL){
 				logger.log(Level.SEVERE, String.format("No event was notified because of response status %s %s, Topic: '%s', DSB: '%s'", response.getStatus(), response.getStatusInfo(), topicUsed, this.notifyTarget.getUri()));
 			}
 			else {

@@ -146,10 +146,10 @@ public abstract class AbstractReceiverRest {
 		
 		logger.debug("Subscribe response status : "+response.getStatus());
 
-		if(response.getStatus() != 201){
+		if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
 			logger.error("Subscription to '{}' at endpoint '{}' failed. HTTP Status Code: {}. {}", topic, subscriptionsTarget.getUri(), response.getStatus(), response.getStatusInfo());
 		}
-		else{
+		else {
 			Subscription s = response.readEntity(Subscription.class);
 			subscriptions.put(s.subscriptionID, topic);
 			logger.debug("adding subscription: id "+s.subscriptionID);
@@ -175,10 +175,10 @@ public abstract class AbstractReceiverRest {
 			  .invoke();
 		
 		logger.debug("Unsubscribe response status : "+response.getStatus());
-		if(response.getStatus() != 204){
+		if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
 			logger.error("Unsubscription failed. HTTP Status Code: "+response.getStatus());
 		}
-		else{
+		else {
 			subscriptions.remove(subscriptionId);
 		}
 		response.close();
@@ -223,8 +223,8 @@ public abstract class AbstractReceiverRest {
 			  .invoke();
 			
 		logger.debug("Get topics response status: "+response.getStatus());
-		if(response.getStatus() != 200){
-			logger.warn("Get topics failed. HTTP Status Code: "+response.getStatus());
+		if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+			logger.warn(String.format("Get topics failed because of response status %s %s, DSB: '%s'", response.getStatus(), response.getStatusInfo(), this.topicsTarget.getUri()));
 		}
 		else{
 			List<Topic> topics = response.readEntity(new GenericType<List<Topic>>(){});
