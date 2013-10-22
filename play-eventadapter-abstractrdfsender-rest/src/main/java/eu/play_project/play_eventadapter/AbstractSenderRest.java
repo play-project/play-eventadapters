@@ -50,6 +50,13 @@ public class AbstractSenderRest {
 		this.defaultTopic = defaultTopic;
 		this.client = ClientBuilder.newClient();
 		this.notifyTarget = client.target(notifyEndpoint);
+		
+		if (PLAY_PLATFORM_APITOKEN.isEmpty()) {
+			logger.warn("API token from properties file is empty. You will probably not be authenticated to send events.");
+		}
+		else if (PLAY_PLATFORM_APITOKEN.startsWith("$")) {
+			logger.warn("API token from properties file is an unexapanded '$variable'. You will probably not be authenticated to send events.");
+		}
 	}
 	
 	/**
@@ -141,6 +148,10 @@ public class AbstractSenderRest {
 	 * Send a {@linkplain String} payload to a specific topic.
 	 */
 	public void notify(String notifPayload, String topicUsed, String notifMediatype) {
+		
+		if (topicUsed.endsWith(Stream.STREAM_ID_SUFFIX)) {
+			logger.warn("Topic ends in suffix {}. You should use a topic name without the suffix.", Stream.STREAM_ID_SUFFIX);
+		}
 		
 		// See class org.ow2.play.governance.platform.user.api.rest.bean.Notification for available fields:
 		MultivaluedMap<String, String> data = new MultivaluedHashMap<String, String>();
