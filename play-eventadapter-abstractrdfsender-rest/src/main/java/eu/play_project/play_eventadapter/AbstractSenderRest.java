@@ -50,6 +50,13 @@ public class AbstractSenderRest {
 		this.defaultTopic = defaultTopic;
 		this.client = ClientBuilder.newClient();
 		this.notifyTarget = client.target(notifyEndpoint);
+		
+		if (PLAY_PLATFORM_APITOKEN.isEmpty()) {
+			logger.warn("API token from properties file is empty. You will probably not be authenticated to send events.");
+		}
+		else if (PLAY_PLATFORM_APITOKEN.startsWith("$")) {
+			logger.warn("API token from properties file is an unexapanded '$variable'. You will probably not be authenticated to send events.");
+		}
 	}
 	
 	/**
