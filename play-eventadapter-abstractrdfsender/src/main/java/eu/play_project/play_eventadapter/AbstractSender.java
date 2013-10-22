@@ -2,8 +2,6 @@ package eu.play_project.play_eventadapter;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,6 +16,7 @@ import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.model.Model;
 import org.petalslink.dsb.notification.client.http.HTTPNotificationConsumerClient;
 import org.petalslink.dsb.notification.commons.NotificationHelper;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -52,7 +51,7 @@ public class AbstractSender {
 	/** Default SOAP endpoint for notifications */
 	private String dsbNotify = Constants.getProperties().getProperty(
 			"dsb.notify.endpoint");
-	private final Logger logger = Logger.getAnonymousLogger();
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractSender.class);
 	private QName defaultTopic;
 	private String producerAddress = "http://localhost:9998/foo/"
 			+ AbstractSender.class.getSimpleName();
@@ -96,7 +95,7 @@ public class AbstractSender {
 			doc.appendChild(doc.adoptNode(element.cloneNode(true)));
 			notify(doc, topicUsed);
 		} catch (ParserConfigurationException e) {
-			logger.log(Level.SEVERE, "No event was notified because of: ", e);
+			logger.error("No event was notified because of: ", e);
 		}
 
 	}
@@ -117,9 +116,9 @@ public class AbstractSender {
 					.createDocumentFromString(notifPayload);
 			notify(notifPayloadDoc, topicUsed);
 		} catch (SAXException e) {
-			logger.log(Level.SEVERE, "No event was notified because of: ", e);
+			logger.error("No event was notified because of: ", e);
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "No event was notified because of: ", e);
+			logger.error("No event was notified because of: ", e);
 		}
 	}
 
@@ -168,7 +167,7 @@ public class AbstractSender {
 				consumerClient.notify(notify);
 			}
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "No event was notified because of: ", e);
+			logger.error("No event was notified because of: ", e);
 		}
 	}
 
@@ -189,11 +188,11 @@ public class AbstractSender {
 	        if (statusCode == 200 || statusCode == 202) {
 	        }
 	        else {
-		    	logger.log(Level.SEVERE, "No event was notified because of: " + response.toString());
+		    	logger.error("No event was notified because of: " + response.toString());
 	        }
 		}
 	    catch (Exception e) {
-	    	logger.log(Level.SEVERE, "No event was notified because of: ", e);
+	    	logger.error("No event was notified because of: ", e);
 	    }
 	}
 

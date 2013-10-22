@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.LoggerFactory;
+
 public class UserDatabase {
 	public String user = "tomcat";
 	public String password = "";
@@ -23,6 +25,7 @@ public class UserDatabase {
 	PreparedStatement insertToken;
 	private boolean databaseInitialized = false;
 	private Connection dbcon;
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(UserDatabase.class);
 
 	public String getServletInfo() {
 		return "Servlet connects to PostgreSQL database and displays result of a SELECT";
@@ -119,7 +122,7 @@ public class UserDatabase {
 			insertToken.setString(1, id);
 			insertToken.setString(2, token);
 			insertToken.execute();
-		} catch (SQLException e) {		
+		} catch (SQLException e) {
 			Logger.getAnonymousLogger().info(
 					"User has already subcribed, trying to update Database");
 			e.printStackTrace();
@@ -155,8 +158,7 @@ public class UserDatabase {
 				}
 			}
 		} catch (SQLException e) {
-			Logger.getAnonymousLogger().info(
-					"User has already subcribed to Application");
+			logger .info("User has already subcribed to Application");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -191,8 +193,7 @@ public class UserDatabase {
 		st = dbcon.createStatement(); // statements
 		int i = st.executeUpdate(expression); // run the query
 		if (i == -1) {
-			Logger.getAnonymousLogger()
-					.info("docbuilder error : " + expression);
+			logger.info("docbuilder error : " + expression);
 		}
 		st.close();
 	}

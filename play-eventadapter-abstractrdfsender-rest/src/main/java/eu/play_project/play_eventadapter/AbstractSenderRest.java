@@ -4,8 +4,6 @@ import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTA
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -20,6 +18,7 @@ import javax.xml.namespace.QName;
 import org.event_processing.events.types.Event;
 import org.ontoware.rdf2go.model.Model;
 import org.ow2.play.governance.platform.user.api.rest.PublishService;
+import org.slf4j.LoggerFactory;
 
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
@@ -37,7 +36,7 @@ public class AbstractSenderRest {
 	private final String PLAY_PLATFORM_APITOKEN = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
 
-	private final Logger logger = Logger.getAnonymousLogger();
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractSenderRest.class);
 	private String defaultTopic;
 	private Boolean online = true;
 	private final Client client;
@@ -158,10 +157,10 @@ public class AbstractSenderRest {
 				  .invoke();
 			
 			if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL){
-				logger.log(Level.SEVERE, String.format("No event was notified because of response status %s %s, Topic: '%s', DSB: '%s'", response.getStatus(), response.getStatusInfo(), topicUsed, this.notifyTarget.getUri()));
+				logger.error(String.format("No event was notified because of response status %s %s, Topic: '%s', DSB: '%s'", response.getStatus(), response.getStatusInfo(), topicUsed, this.notifyTarget.getUri()));
 			}
 			else {
-				logger.fine("Response status: "+response.getStatus());
+				logger.debug("Response status: "+response.getStatus());
 			}
 			
 			response.close();

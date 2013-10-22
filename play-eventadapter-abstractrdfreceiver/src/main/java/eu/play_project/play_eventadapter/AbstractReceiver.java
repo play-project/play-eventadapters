@@ -18,8 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -39,6 +37,7 @@ import org.petalslink.dsb.notification.client.http.simple.HTTPProducerClient;
 import org.petalslink.dsb.notification.client.http.simple.HTTPProducerRPClient;
 import org.petalslink.dsb.notification.client.http.simple.HTTPSubscriptionManagerClient;
 import org.petalslink.dsb.notification.commons.NotificationException;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.ebmwebsourcing.easycommons.xml.XMLHelper;
@@ -73,7 +72,7 @@ public abstract class AbstractReceiver {
 
 	private final String dsbSubscribe;
 	private final String dsbUnsubscribe;
-	private final Logger logger = Logger.getAnonymousLogger();
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractReceiver.class);
 	private final Map<String, QName> subscriptions = Collections.synchronizedMap(new HashMap<String, QName>());
 
 	/**
@@ -116,7 +115,7 @@ public abstract class AbstractReceiver {
 			subscriptions.put(subscriptionId, topic);
 			return subscriptionId;
 		} catch (NotificationException e) {
-			logger.log(Level.WARNING, "Problem while subcribing to topic '"
+			logger.warn("Problem while subcribing to topic '"
 					+ topic + "' at DSB endpoint '" + dsbSubscribe
 					+ "' with callback endpoint '" + notificationsEndPoint
 					+ "'", e);
@@ -140,8 +139,7 @@ public abstract class AbstractReceiver {
 			subscriptions.remove(subscriptionId);
 
 		} catch (NotificationException e) {
-			logger.log(Level.WARNING,
-					"Problem while unsubcribing from subscription '"
+			logger.warn("Problem while unsubcribing from subscription '"
 							+ subscriptionId + "' at DSB endpoint '"
 							+ dsbSubscribe + "'", e);
 			throw e;
@@ -164,14 +162,12 @@ public abstract class AbstractReceiver {
 			}
 		}
 		if (failCount > 0) {
-			logger.log(Level.WARNING,
-					"Problem while unsubcribing from all subscriptions: "
+			logger.warn("Problem while unsubcribing from all subscriptions: "
 							+ failCount
 							+ " unsubscriptions failed at DSB endpoint '"
 							+ dsbSubscribe + "'");
 		} else {
-			logger.log(Level.INFO,
-					"Successfully unsubcribed from all subscriptions at DSB endpoint '"
+			logger.info("Successfully unsubcribed from all subscriptions at DSB endpoint '"
 							+ dsbSubscribe + "'");
 		}
 	}
@@ -189,8 +185,7 @@ public abstract class AbstractReceiver {
 			topics = rpclient.getTopics();
 			logger.info(topics.toString());
 		} catch (NotificationException e) {
-			logger.log(Level.WARNING,
-					"Problem while retreiving the available topics from DSB endpoint '"
+			logger.warn("Problem while retreiving the available topics from DSB endpoint '"
 							+ dsbSubscribe + "'", e);
 		} finally {
 			topics = new ArrayList<QName>();
@@ -273,7 +268,7 @@ public abstract class AbstractReceiver {
 		else {
 			syntax = WSN_MSG_DEFAULT_SYNTAX;
 		}
-		logger.fine("Parsing an incoming event with syntax '" + syntax + "'");
+		logger.debug("Parsing an incoming event with syntax '" + syntax + "'");
 		
 		try {
 			rdf.readFrom(r, Syntax.forMimeType(syntax));
