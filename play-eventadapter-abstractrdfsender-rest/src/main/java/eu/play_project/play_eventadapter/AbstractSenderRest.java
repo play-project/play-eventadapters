@@ -55,7 +55,7 @@ public class AbstractSenderRest {
 			logger.warn("API token from properties file is empty. You will probably not be authenticated to send events.");
 		}
 		else if (PLAY_PLATFORM_APITOKEN.startsWith("$")) {
-			logger.warn("API token from properties file is an unexapanded '$variable'. You will probably not be authenticated to send events.");
+			logger.warn("API token from properties file is an unexpanded '$variable'. You will probably not be authenticated to send events.");
 		}
 	}
 	
