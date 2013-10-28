@@ -22,7 +22,6 @@ test-result/
 *.releaseBackup
 *.iml
 *.eml
-conf/application.conf
 .DS_Store
 .cache
 .checkstyle
