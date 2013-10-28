@@ -21,6 +21,7 @@ import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Noti
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.utils.WsnbException;
 import com.ebmwebsourcing.wsstar.wsnb.services.INotificationConsumer;
 
+import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
 import eu.play_project.play_eventadapter.AbstractReceiver;
@@ -29,7 +30,7 @@ import eu.play_project.play_eventadapter.NoRdfEventException;
 
 public class SendAndReceiveTest {
 
-	public static String notif = "http://localhost:8085/Notif";
+	public static String notif = Constants.getProperties().getProperty("dsb.notify.endpoint");
 
 	@Test
 	public void testSendAndReceive() {

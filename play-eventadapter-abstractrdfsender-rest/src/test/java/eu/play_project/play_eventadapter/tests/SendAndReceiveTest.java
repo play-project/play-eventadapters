@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.play_project.platformservices.eventvalidation.InvalidEventException;
 import eu.play_project.platformservices.eventvalidation.Validator;
+import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Source;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
@@ -40,7 +41,7 @@ import eu.play_project.play_eventadapter.NoRdfEventException;
 public class SendAndReceiveTest {
 
 	private static HttpServer server;
-	private static final String BASE_URI = "http://localhost:8085/notifyRest";
+	private static final String BASE_URI = Constants.getProperties().getProperty("play.platform.endpoint");
 	private static final List<Model> eventSink = Collections.synchronizedList(new ArrayList<Model>());
 	private static Logger logger = LoggerFactory.getLogger(SendAndReceiveTest.class);
 
