@@ -33,7 +33,7 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
 public class AbstractSenderRest {
 	
 	/** Credentials for publishing events to PLAY Platform */
-	private final String PLAY_PLATFORM_APITOKEN = Constants.getProperties("play-eventadapter.properties").getProperty(
+	private String playPlatformApiToken = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractSenderRest.class);
@@ -51,10 +51,10 @@ public class AbstractSenderRest {
 		this.client = ClientBuilder.newClient();
 		this.notifyTarget = client.target(notifyEndpoint);
 		
-		if (PLAY_PLATFORM_APITOKEN.isEmpty()) {
+		if (playPlatformApiToken.isEmpty()) {
 			logger.warn("API token from properties file is empty. You will probably not be authenticated to send events.");
 		}
-		else if (PLAY_PLATFORM_APITOKEN.startsWith("$")) {
+		else if (playPlatformApiToken.startsWith("$")) {
 			logger.warn("API token from properties file is an unexpanded '$variable'. You will probably not be authenticated to send events.");
 		}
 	}
@@ -88,6 +88,10 @@ public class AbstractSenderRest {
 		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart());
 	}
 	
+	public void setApiToken(String token) {
+		this.playPlatformApiToken = token;
+	}
+
 	/**
 	 * Send an {@linkplain Event} to the default Topic.
 	 */
@@ -163,7 +167,7 @@ public class AbstractSenderRest {
 		
 		if (online) {
 			Response response = notifyTarget.request()
-				  .header("Authorization", "Bearer " + PLAY_PLATFORM_APITOKEN)
+				  .header("Authorization", "Bearer " + playPlatformApiToken)
 				  .buildPost(entity)
 				  .invoke();
 			

@@ -74,11 +74,6 @@ public abstract class AbstractReceiverRest {
 	
 	private String playPlatformApiToken = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
-
-	public void setApiToken(String token) {
-		playPlatformApiToken = token;
-	}
-
 	private final Logger logger = LoggerFactory.getLogger(AbstractReceiverRest.class);
 	private final Map<String, String> subscriptions = Collections.synchronizedMap(new HashMap<String, String>());
 
@@ -101,6 +96,13 @@ public abstract class AbstractReceiverRest {
 		client = ClientBuilder.newClient();
 		subscriptionsTarget = client.target(subscribeEndpoint);
 		topicsTarget = client.target(topicsEndpoint);
+		
+		if (playPlatformApiToken.isEmpty()) {
+			logger.warn("API token from properties file is empty. You will probably not be authenticated to send events.");
+		}
+		else if (playPlatformApiToken.startsWith("$")) {
+			logger.warn("API token from properties file is an unexpanded '$variable'. You will probably not be authenticated to send events.");
+		}
 	}
 	
 	/**
@@ -119,6 +121,10 @@ public abstract class AbstractReceiverRest {
 		this(Constants.getProperties().getProperty("play.platform.endpoint"));
 	}
 
+	public void setApiToken(String token) {
+		this.playPlatformApiToken = token;
+	}
+	
 	/**
 	 * Subscribe to a topic at the endpoint in
 	 * {@link AbstractReceiverRest#AbstractReceiverRest(String)}. The callback
