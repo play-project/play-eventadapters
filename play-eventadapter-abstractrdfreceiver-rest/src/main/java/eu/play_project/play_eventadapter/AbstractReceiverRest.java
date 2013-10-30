@@ -97,7 +97,7 @@ public abstract class AbstractReceiverRest {
 		subscriptionsTarget = client.target(subscribeEndpoint);
 		topicsTarget = client.target(topicsEndpoint);
 		
-		if (playPlatformApiToken.isEmpty()) {
+		if (playPlatformApiToken == null || playPlatformApiToken.isEmpty()) {
 			logger.warn("API token from properties file is empty. You will probably not be authenticated to send events.");
 		}
 		else if (playPlatformApiToken.startsWith("$")) {
