@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
+import eu.play_project.play_eventadapter.api.RdfSender;
 
 /**
  * A sender of PLAY events. It is configured to publish events at a fixed
@@ -30,7 +31,7 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  * 
  * @author Roland Stühmer
  */
-public class AbstractSenderRest {
+public class AbstractSenderRest implements RdfSender {
 	
 	/** Credentials for publishing events to PLAY Platform */
 	private String playPlatformApiToken = Constants.getProperties("play-eventadapter.properties").getProperty(
@@ -88,34 +89,42 @@ public class AbstractSenderRest {
 		this(defaultTopic.getNamespaceURI() + defaultTopic.getLocalPart());
 	}
 	
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#setApiToken(java.lang.String)
+	 */
+	@Override
 	public void setApiToken(String token) {
 		this.playPlatformApiToken = token;
 	}
 
-	/**
-	 * Send an {@linkplain Event} to the default Topic.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(org.event_processing.events.types.Event)
 	 */
+	@Override
 	public void notify(Event event) {
 		notify(event, this.defaultTopic);
 	}
 
-	/**
-	 * Send an {@linkplain Event} to a specific topic.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(org.event_processing.events.types.Event, java.lang.String)
 	 */
+	@Override
 	public void notify(Event event, String topicUsed) {
 		notify(event.getModel(), topicUsed);
 	}
 
-	/**
-	 * Send a {@linkplain Model} to the default topic.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(org.ontoware.rdf2go.model.Model)
 	 */
+	@Override
 	public void notify(Model model) {
 		notify(model, this.defaultTopic);
 	}
 
-	/**
-	 * Send a {@linkplain Model} to a specific topic.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(org.ontoware.rdf2go.model.Model, java.lang.String)
 	 */
+	@Override
 	public void notify(Model model, String topicUsed) {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		EventHelpers.write(stream, model);
@@ -126,31 +135,26 @@ public class AbstractSenderRest {
 		}
 	}
 
-	/**
-	 * Send a {@linkplain String} payload to the default topic.
-	 * 
-	 * The payload must be formatted in the default RDF syntax from
-	 * {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
-	 * .
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(java.lang.String)
 	 */
+	@Override
 	public void notify(String notifPayload) {
 		notify(notifPayload, this.defaultTopic);
 	}
 
-	/**
-	 * Send a {@linkplain String} payload to a specific topic.
-	 * 
-	 * The payload must be formatted in the default RDF syntax from
-	 * {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
-	 * .
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public void notify(String notifPayload, String topicUsed) {
 		notify(notifPayload, topicUsed, WSN_MSG_DEFAULT_SYNTAX);
 	}
 	
-	/**
-	 * Send a {@linkplain String} payload to a specific topic.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#notify(java.lang.String, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public void notify(String notifPayload, String topicUsed, String notifMediatype) {
 		
 		if (topicUsed.endsWith(Stream.STREAM_ID_SUFFIX)) {
@@ -182,19 +186,18 @@ public class AbstractSenderRest {
 		}
 	}
 
-	/**
-	 * Get the current notify endpoint.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#getNotifyEndpoint()
 	 */
+	@Override
 	public String getNotifyEndpoint() {
 		return this.notifyTarget.getUri().toString();
 	}
 	
-	/**
-	 * Set the default topic to be used when no topic is specified with a
-	 * {@code notify} method.
-	 * 
-	 * @param defaultTopic
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#setDefaultTopic(java.lang.String)
 	 */
+	@Override
 	public void setDefaultTopic(String defaultTopic) {
 		if (defaultTopic == null) {
 			throw new NullPointerException("defaultTopic may not be null");
@@ -202,9 +205,10 @@ public class AbstractSenderRest {
 		this.defaultTopic = defaultTopic;
 	}
 
-	/**
-	 * For debugging purposes: do not actually send a notification.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfSender#setNoNetworking(java.lang.Boolean)
 	 */
+	@Override
 	public void setNoNetworking(Boolean offline) {
 		this.online = !offline;
 	}

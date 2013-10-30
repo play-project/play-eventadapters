@@ -55,6 +55,7 @@ import com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Noti
 import eu.play_project.play_commons.constants.Constants;
 import eu.play_project.play_commons.constants.Stream;
 import eu.play_project.play_commons.eventtypes.EventHelpers;
+import eu.play_project.play_eventadapter.api.RdfReceiver;
 
 /**
  * A consumer of PLAY events. It can subscribe to PLAY RDF events and deal with
@@ -70,7 +71,7 @@ import eu.play_project.play_commons.eventtypes.EventHelpers;
  * @author Roland Stühmer
  * 
  */
-public abstract class AbstractReceiverRest {
+public abstract class AbstractReceiverRest implements RdfReceiver {
 	
 	private String playPlatformApiToken = Constants.getProperties("play-eventadapter.properties").getProperty(
 			"play.platform.api.token");
@@ -121,21 +122,18 @@ public abstract class AbstractReceiverRest {
 		this(Constants.getProperties().getProperty("play.platform.endpoint"));
 	}
 
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#setApiToken(java.lang.String)
+	 */
+	@Override
 	public void setApiToken(String token) {
 		this.playPlatformApiToken = token;
 	}
 	
-	/**
-	 * Subscribe to a topic at the endpoint in
-	 * {@link AbstractReceiverRest#AbstractReceiverRest(String)}. The callback
-	 * will be used by the DSB to send the subscriptions. It is your
-	 * responsibility to prevent/avoid duplicate subscriptions if needed.
-	 * 
-	 * @param topic
-	 * @param notificationsEndPoint
-	 *            callback SOAP URI to receive notifications
-	 * @return subscription ID as URI resource
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#subscribe(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public String subscribe(String topic, String notificationsEndPoint)  {
 		
 		String subscriptionResourceUrl = "";
@@ -166,11 +164,10 @@ public abstract class AbstractReceiverRest {
 		return subscriptionResourceUrl;
 	}
 
-	/**
-	 * Unsubscribe from a specific subscription.
-	 * 
-	 * @param subscriptionId
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#unsubscribe(java.lang.String)
 	 */
+	@Override
 	public void unsubscribe(String subscriptionId) {
 
 		WebTarget wt = subscriptionsTarget.path(subscriptionId);
@@ -190,9 +187,10 @@ public abstract class AbstractReceiverRest {
 		response.close();
 	}
 
-	/**
-	 * Unsubscribe from all previous subscriptions. Don't fail if something goes wrong.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#unsubscribeAll()
 	 */
+	@Override
 	public void unsubscribeAll() {
 		int failCount = 0;
 		// Make a copy of the collection because it will be modified in #unsubscribe()
@@ -213,12 +211,10 @@ public abstract class AbstractReceiverRest {
 		}
 	}
 
-	/**
-	 * Retreive the current list of topics from the endpoint in
-	 * {@link AbstractReceiverRest#subscribeEndpoint}.
-	 * 
-	 * @return the current list of topics
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#getTopics()
 	 */
+	@Override
 	public List<String> getTopics() {
 
 		List<String> result = new ArrayList<String>();
@@ -244,14 +240,10 @@ public abstract class AbstractReceiverRest {
 		
 	}
 
-	/**
-	 * Retrieve RDF from the contents of the "message" attribute in a REST call.
-	 * 
-	 * @param rdf
-	 *            is expected to contain RDF using the syntax declared in
-	 *            {@linkplain eu.play_project.play_commons.constants.Event#WSN_MSG_DEFAULT_SYNTAX}
-	 *            .
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#parseRdfRest(java.lang.String)
 	 */
+	@Override
 	public Model parseRdfRest(String rdf) throws NoRdfEventException {
 		ModelSet m = EventHelpers.createEmptyModelSet();
 		try {
@@ -283,13 +275,10 @@ public abstract class AbstractReceiverRest {
 		}
 	}
 		
-	/**
-	 * Retrieve RDF from the contents of an XML message.
-	 * 
-	 * @param stringNotify a String containing a Notify SOAP message
-	 * @return
-	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#parseRdf(java.lang.String)
 	 */
+	@Override
 	public Model parseRdf(String stringNotify) throws NoRdfEventException {
 		try {
 			return parseRdf(XMLHelper.createDocumentFromString(stringNotify));
@@ -298,13 +287,10 @@ public abstract class AbstractReceiverRest {
 		}
 	}
 
-	/**
-	 * Retrieve RDF from the contents of an XML message.
-	 * 
-	 * @param notify
-	 * @return
-	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#parseRdf(com.ebmwebsourcing.wsstar.basenotification.datatypes.api.abstraction.Notify)
 	 */
+	@Override
 	public Model parseRdf(Notify notify) throws NoRdfEventException {
 		for (NotificationMessageHolderType holder : notify.getNotificationMessage()) {
 			// we support only one event message per notify envelope, return immediately:
@@ -314,13 +300,10 @@ public abstract class AbstractReceiverRest {
 		throw new NoRdfEventException("An event was receieved without a <wsnt:Message> element.");
 	}
 	
-	/**
-	 * Retrieve RDF from the contents of an XML message.
-	 * 
-	 * @param xmlNotify
-	 * @return
-	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#parseRdf(org.w3c.dom.Node)
 	 */
+	@Override
 	public Model parseRdf(Node xmlNotify) throws NoRdfEventException {
 
 		// The ModelSet to hold the RDF data:
@@ -402,14 +385,10 @@ public abstract class AbstractReceiverRest {
 		return EventHelpers.addNamespaces(model);
 	}
 	
-	/**
-	 * Retrieve an Event from the contents of an XML message.
-	 * 
-	 * @param xmlNotify
-	 * @param type the event class which is expected as a return type
-	 * @return an event of the given type, if one was found. {@code null} otherwise
-	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#getEvent(java.lang.String, java.lang.Class)
 	 */
+	@Override
 	public <EventType extends Event> EventType getEvent(String stringNotify, Class<EventType> type) throws NoRdfEventException {
 		try {
 			return this.getEvent(XMLHelper.createDocumentFromString(stringNotify), type);
@@ -418,14 +397,10 @@ public abstract class AbstractReceiverRest {
 		}
 	}
 
-	/**
-	 * Retrieve an Event from the contents of an XML message.
-	 * 
-	 * @param xmlNotify
-	 * @param type the event class which is expected as a return type
-	 * @return an event of the given type, if one was found. {@code null} otherwise
-	 * @throws NoRdfEventException if there was no RDF to parse in the input
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#getEvent(org.w3c.dom.Node, java.lang.Class)
 	 */
+	@Override
 	public <EventType extends Event> EventType getEvent(Node xmlNotify, Class<EventType> type) throws NoRdfEventException {
 		Model model = this.parseRdf(xmlNotify);
 		EventType event = null;
@@ -451,9 +426,10 @@ public abstract class AbstractReceiverRest {
 		client.close();
 	}
 
-	/**
-	 * Get the defined subscribe and unsubscribe endpoint.
+	/* (non-Javadoc)
+	 * @see eu.play_project.play_eventadapter.RdfReceiver#getSubscribeEndpoint()
 	 */
+	@Override
 	public String getSubscribeEndpoint() {
 		return this.subscriptionsTarget.getUri().toString();
 	}
