@@ -253,7 +253,7 @@ public abstract class AbstractReceiver {
 
 		String playMsgContent = (playMsgElement != null && playMsgElement.getTextContent() != null) ? playMsgElement.getTextContent() : "";
 		if (playMsgContent.isEmpty()) {
-			throw new NoRdfEventException("An event was receieved with no or empty content element: " + WSN_MSG_ELEMENT);
+			throw new NoRdfEventException("An event was receieved without text (e.g. RDF) inside the content element: " + WSN_MSG_ELEMENT);
 		}
 		Reader r = new StringReader(playMsgContent);
 
