@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -34,7 +35,7 @@ public class AbstractReceiverTest {
 	@Test
 	public void testPachubeNotify() throws IOException {
 		try {
-			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("PachubeEvent.notify.xml"), "UTF-8");
+			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("PachubeEvent.notify.xml"), StandardCharsets.UTF_8);
 			/*
 			 * Read RDF from the XML message
 			 */
@@ -62,7 +63,7 @@ public class AbstractReceiverTest {
 	@Test
 	public void testTaxiUCGeoLocationEvent() throws IOException {
 		try {
-			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("TaxiUCGeoLocation.notify.xml"), "UTF-8");
+			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("TaxiUCGeoLocation.notify.xml"), StandardCharsets.UTF_8);
 			/*
 			 * Read RDF from the XML message
 			 */
@@ -89,7 +90,7 @@ public class AbstractReceiverTest {
 	@Test
 	public void testUcTelcoClic2CallEvent() throws IOException {
 		try {
-			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), "UTF-8");
+			String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), StandardCharsets.UTF_8);
 			/*
 			 * Read RDF from the XML message
 			 */
@@ -117,7 +118,7 @@ public class AbstractReceiverTest {
 	
 	@Test
 	public void testGenericEvent() throws IOException {
-		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), "UTF-8");
+		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), StandardCharsets.UTF_8);
 
 		UcTelcoClic2Call clic2callEvent;
 		try {
@@ -141,7 +142,7 @@ public class AbstractReceiverTest {
 	 */
 	@Test(expected = NoRdfEventException.class)
 	public void testNonRdfMessageException() throws NoRdfEventException, IOException {
-		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("NonRDFEvent.soap.xml"), "UTF-8");
+		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("NonRDFEvent.soap.xml"), StandardCharsets.UTF_8);
 		/*
 		 * Read RDF from the XML message
 		 */

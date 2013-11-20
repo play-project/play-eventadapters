@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 
@@ -45,7 +46,7 @@ public class PachubeEventParseTest {
 	@Test
 	public void testPachubeEventCreation() throws InvalidEventException, IOException {
 
-		String jsonText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("pachube.json"), "UTF-8");
+		String jsonText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("pachube.json"), StandardCharsets.UTF_8);
 
 		Model m  = PachubeServlet.createEventModel(jsonText);
 		

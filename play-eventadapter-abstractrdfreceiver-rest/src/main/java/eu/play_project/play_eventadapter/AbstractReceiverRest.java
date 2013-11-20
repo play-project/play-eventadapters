@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -247,7 +248,7 @@ public abstract class AbstractReceiverRest implements RdfReceiver {
 	public Model parseRdfRest(String rdf) throws NoRdfEventException {
 		ModelSet m = EventHelpers.createEmptyModelSet();
 		try {
-			m.readFrom(IOUtils.toInputStream(rdf, "UTF-8"), Syntax.forMimeType(WSN_MSG_DEFAULT_SYNTAX));
+			m.readFrom(IOUtils.toInputStream(rdf, StandardCharsets.UTF_8), Syntax.forMimeType(WSN_MSG_DEFAULT_SYNTAX));
 		} catch (Exception e) {
 			throw new NoRdfEventException("An exception occured while parsing RDF of an incoming event.", e);
 		}

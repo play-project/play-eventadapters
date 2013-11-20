@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -34,7 +35,7 @@ public class AbstractReceiverSoapTest {
 	
 	@Test
 	public void testGenericEvent() throws IOException {
-		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), "UTF-8");
+		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("UcTelcoClic2Call.notify.xml"), StandardCharsets.UTF_8);
 
 		UcTelcoClic2Call clic2callEvent;
 		try {
@@ -58,7 +59,7 @@ public class AbstractReceiverSoapTest {
 	 */
 	@Test(expected = NoRdfEventException.class)
 	public void testNonRdfMessageException() throws NoRdfEventException, IOException {
-		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("NonRDFEvent.soap.xml"), "UTF-8");
+		String xmlText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("NonRDFEvent.soap.xml"), StandardCharsets.UTF_8);
 		/*
 		 * Read RDF from the XML message
 		 */

@@ -4,6 +4,7 @@ import static eu.play_project.play_commons.constants.Event.WSN_MSG_DEFAULT_SYNTA
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -129,7 +130,7 @@ public class AbstractSenderRest implements RdfSender {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		EventHelpers.write(stream, model);
 		try {
-			notify(stream.toString("UTF-8"), topicUsed);
+			notify(stream.toString(StandardCharsets.UTF_8.name()), topicUsed);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}

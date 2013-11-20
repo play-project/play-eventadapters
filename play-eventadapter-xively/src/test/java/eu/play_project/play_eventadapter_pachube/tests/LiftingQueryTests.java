@@ -4,6 +4,7 @@ import static eu.play_project.play_commons.constants.Event.EVENT_ID_SUFFIX;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +39,8 @@ public class LiftingQueryTests {
 	public void testPachubeLiftingQuery() throws MalformedURLException, IOException{
 		
 		
-		String liftingQuery = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("liftingQueryPachube.rq"), "UTF-8");
-		String json = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("pachube.json"), "UTF-8");
+		String liftingQuery = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("liftingQueryPachube.rq"), StandardCharsets.UTF_8);
+		String json = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("pachube.json"), StandardCharsets.UTF_8);
 		
 		/*
 		 * Event object:
