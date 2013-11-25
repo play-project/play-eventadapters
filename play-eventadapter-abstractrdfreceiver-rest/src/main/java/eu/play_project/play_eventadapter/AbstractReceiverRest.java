@@ -342,7 +342,7 @@ public abstract class AbstractReceiverRest implements RdfReceiver {
 		else {
 			syntax = WSN_MSG_DEFAULT_SYNTAX;
 		}
-		logger.debug("Parsing an incoming event with syntax '" + syntax + "'");
+		logger.debug("Parsing an incoming event with syntax '{}'", syntax);
 		
 		try {
 			rdf.readFrom(r, Syntax.forMimeType(syntax));
