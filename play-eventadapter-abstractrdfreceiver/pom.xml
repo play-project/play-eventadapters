@@ -21,6 +21,16 @@
 			<groupId>org.ow2.petals.dsb</groupId>
 			<artifactId>dsb-notification-commons</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>stax-api</artifactId>
+					<groupId>stax</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>xmlParserAPIs</artifactId>
+					<groupId>xerces</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.petals.dsb</groupId>
