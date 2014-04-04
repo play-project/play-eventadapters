@@ -32,6 +32,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.play</groupId>
+			<artifactId>play-commons-eventtypes</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.play</groupId>
 			<artifactId>play-eventadapter-abstractrdfsender-rest</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
@@ -46,12 +51,6 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.play</groupId>
-			<artifactId>play-platformservices-eventvalidation</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.semweb4j</groupId>

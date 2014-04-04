@@ -16,9 +16,9 @@ import org.ontoware.rdf2go.model.Syntax;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.json.DataObjectFactory;
-import eu.play_project.platformservices.eventvalidation.InvalidEventException;
-import eu.play_project.platformservices.eventvalidation.Validator;
 import eu.play_project.play_commons.constants.Stream;
+import eu.play_project.play_commons.eventtypes.eventvalidation.InvalidEventException;
+import eu.play_project.play_commons.eventtypes.eventvalidation.Validator;
 import eu.play_project.play_eventadapter_twitter.TwitterPublisher;
 
 /**
