@@ -36,13 +36,37 @@
 		</repository>
 	</repositories>
 	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>typesafe-releases-plugins</id>
+			<url>http://repo.typesafe.com/typesafe/releases/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<properties>
+		<play2.version>2.2.1</play2.version>
+		<play2.plugin.version>1.0.0-alpha7</play2.plugin.version>
+		<play2.scala.version>2.10</play2.scala.version>
+		<scala.version>2.10.2</scala.version>
+		<sbt-compiler.plugin.version>1.0.0-beta4</sbt-compiler.plugin.version>
+	</properties>
+    	
 	<dependencies>
 		<!-- Play! Framework Dependencies -->
 		<dependency>
-			<groupId>play</groupId>
-			<artifactId>play_2.9.1</artifactId>
-			<version>2.0.4</version>
-			<scope>provided</scope>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.play</groupId>
+			<artifactId>play-java_${play2.scala.version}</artifactId>
+			<version>${play2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.play</groupId>
+			<artifactId>play_${play2.scala.version}</artifactId>
+			<version>${play2.version}</version>
 			<exclusions>
 				<!-- exclude various files mostly because of conflicts with event cloud -->
 				<exclusion>
@@ -51,12 +75,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>play</groupId>
-			<artifactId>play-test_2.9.1</artifactId>
-			<version>2.0.4</version>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-test_${play2.scala.version}</artifactId>
+            <version>${play2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
 		<!-- PLAY Platform Depenencies -->
 		<dependency>
 			<groupId>org.ow2.play</groupId>
@@ -105,6 +130,10 @@
 					<artifactId>play-commons-eventformat</artifactId>
 					<groupId>eu.play-project</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>social-filter</artifactId>
+					<groupId>com.ebmwebsourcing.projects.soceda.wp2-federated-middleware-layer.social-components</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -145,6 +174,17 @@
 		<!-- Play source directory -->
 		<sourceDirectory>app</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>conf</directory>
+			</resource>
+			<resource>
+				<directory>${basedir}</directory>
+				<includes>
+					<include>public/**</include>
+				</includes>
+			</resource>
+		</resources>
 
 		<plugins>
 			<!-- Do not deploy this artefact to maven repo, it is very big. :stuehmer  -->
@@ -155,12 +195,54 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
+			
+			<!-- Play! framework -->
 			<plugin>
-				<groupId>de.akquinet.innovation.play2</groupId>
+				<groupId>com.google.code.play2-maven-plugin</groupId>
 				<artifactId>play2-maven-plugin</artifactId>
-				<version>1.2.1</version>
+				<version>${play2.plugin.version}</version>
 				<extensions>true</extensions>
-			</plugin> 
+			</plugin>
+			<plugin>
+				<groupId>com.google.code.sbt-compiler-maven-plugin</groupId>
+				<artifactId>sbt-compiler-maven-plugin</artifactId>
+				<version>${sbt-compiler.plugin.version}</version>
+			</plugin>
+			
+			<!-- Workaround from https://code.google.com/p/play2-maven-plugin/wiki/EclipseIntegration -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<skipMain>true</skipMain>
+					<skip>true</skip>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Spec.java</include>
+						<include>**/*Test.java</include>
+					</includes>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build> 
 
